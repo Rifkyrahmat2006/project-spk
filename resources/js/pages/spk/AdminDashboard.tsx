@@ -1,5 +1,12 @@
 import { usePage } from '@inertiajs/react';
-import { BookOpen, Users, Trophy, ClipboardList, Calculator, RefreshCw } from 'lucide-react';
+import {
+    BookOpen,
+    Users,
+    Trophy,
+    ClipboardList,
+    Calculator,
+    RefreshCw,
+} from 'lucide-react';
 
 export default function AdminDashboard() {
     const { props } = usePage();
@@ -17,18 +24,26 @@ export default function AdminDashboard() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+                    'X-CSRF-TOKEN': document
+                        .querySelector('meta[name="csrf-token"]')
+                        ?.getAttribute('content'),
                 },
             })
-            .then(res => res.json())
-            .then(data => {
-                alert(data.success ? `${data.message}: ${data.result_count} kandidat` : `Error: ${data.error}`);
-                if (data.success) {
-                    // Refresh page to show updated results
-                    window.location.reload();
-                }
-            })
-            .catch(err => alert('Error calculating TOPSIS: ' + err.message));
+                .then((res) => res.json())
+                .then((data) => {
+                    alert(
+                        data.success
+                            ? `${data.message}: ${data.result_count} kandidat`
+                            : `Error: ${data.error}`,
+                    );
+                    if (data.success) {
+                        // Refresh page to show updated results
+                        window.location.reload();
+                    }
+                })
+                .catch((err) =>
+                    alert('Error calculating TOPSIS: ' + err.message),
+                );
         }
     };
 
@@ -132,7 +147,12 @@ export default function AdminDashboard() {
                                         Input Nilai
                                     </a>
                                     <button
-                                        onClick={() => handleCalculateTopsis(course.id, course.name)}
+                                        onClick={() =>
+                                            handleCalculateTopsis(
+                                                course.id,
+                                                course.name,
+                                            )
+                                        }
                                         className="flex items-center gap-1 rounded bg-purple-100 px-3 py-1 text-xs text-purple-800 hover:bg-purple-200"
                                     >
                                         <Calculator size={12} />

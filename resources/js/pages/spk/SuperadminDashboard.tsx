@@ -32,25 +32,32 @@ export default function SuperadminDashboard() {
     const stats = props.stats || {};
 
     const handleRecalculateAll = () => {
-        if (confirm('Recalculate TOPSIS untuk semua mata kuliah? Ini akan menghapus hasil sebelumnya.')) {
+        if (
+            confirm(
+                'Recalculate TOPSIS untuk semua mata kuliah? Ini akan menghapus hasil sebelumnya.',
+            )
+        ) {
             fetch('/admin/topsis/calculate-all', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+                    'X-CSRF-TOKEN': document
+                        .querySelector('meta[name="csrf-token"]')
+                        ?.getAttribute('content'),
                 },
             })
-            .then(res => res.json())
-            .then(data => {
-                alert(data.success 
-                    ? `Berhasil: ${data.successful_courses} mata kuliah` 
-                    : `Error: ${data.error}`
-                );
-                if (data.success) {
-                    window.location.reload();
-                }
-            })
-            .catch(err => alert('Error: ' + err.message));
+                .then((res) => res.json())
+                .then((data) => {
+                    alert(
+                        data.success
+                            ? `Berhasil: ${data.successful_courses} mata kuliah`
+                            : `Error: ${data.error}`,
+                    );
+                    if (data.success) {
+                        window.location.reload();
+                    }
+                })
+                .catch((err) => alert('Error: ' + err.message));
         }
     };
 
@@ -59,22 +66,28 @@ export default function SuperadminDashboard() {
             alert('Tidak ada periode aktif');
             return;
         }
-        if (confirm(`Lock periode "${activePeriod.name}" dan buat snapshot? Ini tidak bisa dibatalkan.`)) {
+        if (
+            confirm(
+                `Lock periode "${activePeriod.name}" dan buat snapshot? Ini tidak bisa dibatalkan.`,
+            )
+        ) {
             fetch(`/admin/topsis/periods/${activePeriod.id}/lock`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+                    'X-CSRF-TOKEN': document
+                        .querySelector('meta[name="csrf-token"]')
+                        ?.getAttribute('content'),
                 },
             })
-            .then(res => res.json())
-            .then(data => {
-                alert(data.success ? data.message : `Error: ${data.error}`);
-                if (data.success) {
-                    window.location.reload();
-                }
-            })
-            .catch(err => alert('Error: ' + err.message));
+                .then((res) => res.json())
+                .then((data) => {
+                    alert(data.success ? data.message : `Error: ${data.error}`);
+                    if (data.success) {
+                        window.location.reload();
+                    }
+                })
+                .catch((err) => alert('Error: ' + err.message));
         }
     };
 
@@ -248,7 +261,9 @@ export default function SuperadminDashboard() {
                                 className="flex items-center gap-2 rounded bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700 disabled:bg-gray-400"
                             >
                                 <Lock size={16} />
-                                {activePeriod?.is_locked ? 'Terkunci' : 'Lock Periode'}
+                                {activePeriod?.is_locked
+                                    ? 'Terkunci'
+                                    : 'Lock Periode'}
                             </button>
                         </div>
                     </div>
