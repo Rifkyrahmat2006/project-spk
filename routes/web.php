@@ -10,6 +10,7 @@ use App\Http\Controllers\Superadmin\ConsolidatedResultController;
 use App\Http\Controllers\Admin\CandidateManagementController;
 use App\Http\Controllers\Admin\ScoreController;
 use App\Http\Controllers\Admin\TopsisResultController;
+use App\Http\Controllers\Admin\TopsisController;
 use App\Http\Controllers\Candidate\PortalController;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -31,6 +32,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('candidates', CandidateManagementController::class);
         Route::resource('scores', ScoreController::class);
         Route::get('topsis-results', [TopsisResultController::class, 'index'])->name('results.index');
+
+        // TOPSIS Engine Routes
+        Route::prefix('topsis')->name('topsis.')->group(function () {
+            Route::post('calculate-all', [TopsisController::class, 'calculateAll'])->name('calculate-all');
+            Route::post('periods/{period}/lock', [TopsisController::class, 'lock'])->name('lock');
+        });
+
+        Route::prefix('courses/{course}/topsis')->name('courses.topsis.')->group(function () {
+            Route::get('/', [TopsisController::class, 'show'])->name('show');
+            Route::post('calculate', [TopsisController::class, 'calculate'])->name('calculate');
+        });
     });
 
     // Candidate / User Routes

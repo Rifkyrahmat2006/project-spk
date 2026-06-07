@@ -22,9 +22,9 @@ class TopsisResult extends Model
     ];
 
     protected $casts = [
-        'd_plus' => 'decimal:6',
-        'd_minus' => 'decimal:6',
-        'preference_score' => 'decimal:6',
+        'd_plus' => 'decimal:10',
+        'd_minus' => 'decimal:10',
+        'preference_score' => 'decimal:10',
         'ranking' => 'integer',
         'is_accepted' => 'boolean',
         'calculated_at' => 'datetime',

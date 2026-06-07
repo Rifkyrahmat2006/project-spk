@@ -6,6 +6,8 @@ import {
     Clock,
     Trophy,
     Activity,
+    Calculator,
+    Lock,
 } from 'lucide-react';
 import {
     BarChart,
@@ -28,6 +30,53 @@ export default function SuperadminDashboard() {
     const criteria = props.criteria || [];
     const activePeriod = props.activePeriod || null;
     const stats = props.stats || {};
+
+    const handleRecalculateAll = () => {
+        if (confirm('Recalculate TOPSIS untuk semua mata kuliah? Ini akan menghapus hasil sebelumnya.')) {
+            fetch('/admin/topsis/calculate-all', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+                },
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.success 
+                    ? `Berhasil: ${data.successful_courses} mata kuliah` 
+                    : `Error: ${data.error}`
+                );
+                if (data.success) {
+                    window.location.reload();
+                }
+            })
+            .catch(err => alert('Error: ' + err.message));
+        }
+    };
+
+    const handleLockPeriod = () => {
+        if (!activePeriod) {
+            alert('Tidak ada periode aktif');
+            return;
+        }
+        if (confirm(`Lock periode "${activePeriod.name}" dan buat snapshot? Ini tidak bisa dibatalkan.`)) {
+            fetch(`/admin/topsis/periods/${activePeriod.id}/lock`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+                },
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.success ? data.message : `Error: ${data.error}`);
+                if (data.success) {
+                    window.location.reload();
+                }
+            })
+            .catch(err => alert('Error: ' + err.message));
+        }
+    };
 
     const chartData = courses.map((course: any) => ({
         name: course.code,
@@ -181,9 +230,28 @@ export default function SuperadminDashboard() {
             {/* Active Period Details */}
             {activePeriod && (
                 <div className="rounded-xl border border-gray-200 bg-white p-6">
-                    <h2 className="mb-4 text-lg font-semibold text-gray-900">
-                        Detail Periode Aktif
-                    </h2>
+                    <div className="mb-4 flex items-center justify-between">
+                        <h2 className="text-lg font-semibold text-gray-900">
+                            Detail Periode Aktif
+                        </h2>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={handleRecalculateAll}
+                                className="flex items-center gap-2 rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+                            >
+                                <Calculator size={16} />
+                                Hitung Ulang Semua
+                            </button>
+                            <button
+                                onClick={handleLockPeriod}
+                                disabled={activePeriod?.is_locked}
+                                className="flex items-center gap-2 rounded bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700 disabled:bg-gray-400"
+                            >
+                                <Lock size={16} />
+                                {activePeriod?.is_locked ? 'Terkunci' : 'Lock Periode'}
+                            </button>
+                        </div>
+                    </div>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <div>
                             <p className="text-sm text-gray-500">

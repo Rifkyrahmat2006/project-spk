@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { BookOpen, Users, Trophy, ClipboardList } from 'lucide-react';
+import { BookOpen, Users, Trophy, ClipboardList, Calculator, RefreshCw } from 'lucide-react';
 
 export default function AdminDashboard() {
     const { props } = usePage();
@@ -10,6 +10,27 @@ export default function AdminDashboard() {
         (sum: number, c: any) => sum + (c.candidates_count || 0),
         0,
     );
+
+    const handleCalculateTopsis = (courseId: number, courseName: string) => {
+        if (confirm(`Hitung TOPSIS untuk ${courseName}?`)) {
+            fetch(`/admin/courses/${courseId}/topsis/calculate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+                },
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.success ? `${data.message}: ${data.result_count} kandidat` : `Error: ${data.error}`);
+                if (data.success) {
+                    // Refresh page to show updated results
+                    window.location.reload();
+                }
+            })
+            .catch(err => alert('Error calculating TOPSIS: ' + err.message));
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -110,8 +131,15 @@ export default function AdminDashboard() {
                                     >
                                         Input Nilai
                                     </a>
+                                    <button
+                                        onClick={() => handleCalculateTopsis(course.id, course.name)}
+                                        className="flex items-center gap-1 rounded bg-purple-100 px-3 py-1 text-xs text-purple-800 hover:bg-purple-200"
+                                    >
+                                        <Calculator size={12} />
+                                        Hitung
+                                    </button>
                                     <a
-                                        href={`/admin/topsis-results?course_id=${course.id}`}
+                                        href={`/admin/courses/${course.id}/topsis`}
                                         className="rounded bg-green-100 px-3 py-1 text-xs text-green-800 hover:bg-green-200"
                                     >
                                         Hasil
