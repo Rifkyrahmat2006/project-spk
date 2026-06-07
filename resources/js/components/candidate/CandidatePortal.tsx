@@ -15,15 +15,6 @@ export default function CandidatePortal() {
     const user = props.auth?.user;
     const courses = props.courses || [];
     const periods = props.periods || [];
-    const enrollments = props.enrollments || [];
-
-    const [showApply, setShowApply] = useState(false);
-    const { data, setData, post, processing, errors } = useForm({
-        course_id: '',
-    });
-
-    const activePeriod = periods.find((p) => p.isActive);
-
     const enrollments = getCandidateEnrollments();
 
     function getCandidateEnrollments() {

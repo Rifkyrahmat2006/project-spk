@@ -22,6 +22,12 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        $middleware->alias([
+            'role.superadmin' => \App\Http\Middleware\EnsureSuperadmin::class,
+            'role.admin' => \App\Http\Middleware\EnsureAdminOrSuperadmin::class,
+            'role.candidate' => \App\Http\Middleware\EnsureCandidate::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

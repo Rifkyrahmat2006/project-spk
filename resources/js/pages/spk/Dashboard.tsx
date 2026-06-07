@@ -1,7 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import SADashboard from '@/components/superadmin/SADashboard';
 import AdminDashboard from '@/components/admin/AdminDashboard';
-import CandidatePortal from '@/components/candidate/CandidatePortal';
+import Portal from './candidate/Portal';
 
 export default function Dashboard() {
     const { props } = usePage();
@@ -20,5 +20,5 @@ export default function Dashboard() {
         return <AdminDashboard />;
     }
 
-    return <CandidatePortal />;
+    return <Portal />;
 }

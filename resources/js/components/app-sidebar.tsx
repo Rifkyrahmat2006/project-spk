@@ -1,7 +1,17 @@
-import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import {
+    LayoutGrid,
+    BookOpen,
+    SlidersHorizontal,
+    Users,
+    CalendarDays,
+    BarChart3,
+    UserCheck,
+    ClipboardList,
+    Trophy,
+    FileText,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -13,38 +23,61 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
+const superadminNavItems: NavItem[] = [
+    { title: 'Dashboard', href: '/dashboard', icon: LayoutGrid },
+    { title: 'Mata Kuliah', href: '/superadmin/courses', icon: BookOpen },
     {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
+        title: 'Kriteria & Bobot',
+        href: '/superadmin/criteria',
+        icon: SlidersHorizontal,
+    },
+    { title: 'Manajemen Pengguna', href: '/superadmin/users', icon: Users },
+    {
+        title: 'Periode Seleksi',
+        href: '/superadmin/periods',
+        icon: CalendarDays,
+    },
+    {
+        title: 'Rekap Hasil',
+        href: '/superadmin/consolidated-results',
+        icon: BarChart3,
     },
 ];
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
+const adminNavItems: NavItem[] = [
+    { title: 'Dashboard', href: '/dashboard', icon: LayoutGrid },
+    { title: 'Manajemen Kandidat', href: '/admin/candidates', icon: UserCheck },
+    { title: 'Input Nilai', href: '/admin/scores', icon: ClipboardList },
+    { title: 'Hasil TOPSIS', href: '/admin/topsis-results', icon: Trophy },
+];
+
+const candidateNavItems: NavItem[] = [
+    { title: 'Dashboard', href: '/dashboard', icon: LayoutGrid },
+    { title: 'Portal Seleksi', href: '/portal', icon: FileText },
 ];
 
 export function AppSidebar() {
+    const { props } = usePage();
+    const user = props.auth?.user;
+
+    const getNavItems = () => {
+        if (!user) return [];
+
+        if (user.role === 'superadmin') return superadminNavItems;
+        if (user.role === 'admin') return adminNavItems;
+        if (user.role === 'user') return candidateNavItems;
+        return [];
+    };
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href={dashboard()} prefetch>
+                            <Link href="/dashboard" prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
@@ -53,11 +86,10 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={getNavItems()} />
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

@@ -1,0 +1,82 @@
+
+> @ build D:\1)Pendidikan\2)Kuliah\SPK\project-spk
+> vite build
+
+[36mvite v8.0.16 [32mbuilding client environment for production...[36m[39m
+[plugin @laravel/vite-plugin-wayfinder] Types generated for actions, routes, form variants
+[2K
+transforming...Ô£ô 2867 modules transformed.
+Ô£ù Build failed in 19.40s
+error during build:
+Build failed with 1 error:
+
+[plugin vite:react-babel] D:/1)Pendidikan/2)Kuliah/SPK/project-spk/resources/js/components/candidate/CandidatePortal.tsx:27:10
+SyntaxError: D:\1)Pendidikan\2)Kuliah\SPK\project-spk\resources\js\components\candidate\CandidatePortal.tsx: Identifier 'enrollments' has already been declared. (27:10)
+
+  25 |     const activePeriod = periods.find((p) => p.isActive);
+  26 |
+> 27 |     const enrollments = getCandidateEnrollments();
+     |           ^
+  28 |
+  29 |     function getCandidateEnrollments() {
+  30 |         const candidateRecords = candidates.filter(
+    at constructor (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:365:19)
+    at TypeScriptParserMixin.raise (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:6616:19)
+    at TypeScriptScopeHandler.checkRedeclarationInScope (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:1619:19)
+    at TypeScriptScopeHandler.declareName (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:1585:12)
+    at TypeScriptScopeHandler.declareName (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:4892:11)
+    at TypeScriptParserMixin.declareNameFromIdentifier (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:7584:16)
+    at TypeScriptParserMixin.checkIdentifier (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:7580:12)
+    at TypeScriptParserMixin.checkLVal (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:7517:12)
+    at TypeScriptParserMixin.parseVarId (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:13429:10)
+    at TypeScriptParserMixin.parseVarId (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:9769:11)
+    at TypeScriptParserMixin.parseVar (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:13400:12)
+    at TypeScriptParserMixin.parseVarStatement (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:13247:10)
+    at TypeScriptParserMixin.parseVarStatement (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:9425:31)
+    at TypeScriptParserMixin.parseStatementContent (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:12868:23)
+    at TypeScriptParserMixin.parseStatementContent (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:9525:18)
+    at TypeScriptParserMixin.parseStatementLike (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:12784:17)
+    at TypeScriptParserMixin.parseStatementListItem (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:12764:17)
+    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:13333:61)
+    at TypeScriptParserMixin.parseBlockBody (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:13326:10)
+    at TypeScriptParserMixin.parseBlock (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:13314:10)
+    at TypeScriptParserMixin.parseFunctionBody (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:12117:24)
+    at TypeScriptParserMixin.parseFunctionBodyAndFinish (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:12103:10)
+    at TypeScriptParserMixin.parseFunctionBodyAndFinish (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:9189:18)
+    at D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:13462:12
+    at TypeScriptParserMixin.withSmartMixTopicForbiddingContext (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:12420:14)
+    at TypeScriptParserMixin.parseFunction (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:13461:10)
+    at TypeScriptParserMixin.parseExportDefaultExpression (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:13924:19)
+    at TypeScriptParserMixin.parseExportDefaultExpression (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:9419:18)
+    at TypeScriptParserMixin.parseExport (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:13845:25)
+    at TypeScriptParserMixin.parseExport (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:9402:20)
+    at TypeScriptParserMixin.parseStatementContent (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:12895:27)
+    at TypeScriptParserMixin.parseStatementContent (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:9525:18)
+    at TypeScriptParserMixin.parseStatementLike (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:12784:17)
+    at TypeScriptParserMixin.parseModuleItem (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:12761:17)
+    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:13333:36)
+    at TypeScriptParserMixin.parseBlockBody (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:13326:10)
+    at TypeScriptParserMixin.parseProgram (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:12639:10)
+    at TypeScriptParserMixin.parseTopLevel (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:12629:25)
+    at TypeScriptParserMixin.parse (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:14505:25)
+    at TypeScriptParserMixin.parse (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:10143:18)
+    at parse (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\parser\lib\index.js:14539:38)
+    at parser (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\core\lib\parser\index.js:41:34)
+    at parser.next (<anonymous>)
+    at normalizeFile (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\core\lib\transformation\normalize-file.js:51:37)
+    at normalizeFile.next (<anonymous>)
+    at run (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\core\lib\transformation\index.js:22:50)
+    at run.next (<anonymous>)
+    at transform (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\@babel\core\lib\transform.js:22:33)
+    at transform.next (<anonymous>)
+    at step (D:\1)Pendidikan\2)Kuliah\SPK\project-spk\node_modules\gensync\index.js:261:32)
+    at aggregateBindingErrorsIntoJsError (file:///D:/1)Pendidikan/2)Kuliah/SPK/project-spk/node_modules/rolldown/dist/shared/error-BuvQYXuZ.mjs:48:18)
+    at unwrapBindingResult (file:///D:/1)Pendidikan/2)Kuliah/SPK/project-spk/node_modules/rolldown/dist/shared/error-BuvQYXuZ.mjs:18:128)
+    at #build (file:///D:/1)Pendidikan/2)Kuliah/SPK/project-spk/node_modules/rolldown/dist/shared/rolldown-build-CrPk_lZe.mjs:3246:34)
+    at async buildEnvironment (file:///D:/1)Pendidikan/2)Kuliah/SPK/project-spk/node_modules/vite/dist/node/chunks/node.js:33253:64)
+    at async Object.build (file:///D:/1)Pendidikan/2)Kuliah/SPK/project-spk/node_modules/vite/dist/node/chunks/node.js:33675:19)
+    at async Object.buildApp (file:///D:/1)Pendidikan/2)Kuliah/SPK/project-spk/node_modules/vite/dist/node/chunks/node.js:33672:153)
+    at async CAC.<anonymous> (file:///D:/1)Pendidikan/2)Kuliah/SPK/project-spk/node_modules/vite/dist/node/cli.js:777:3) {
+  errors: [Getter/Setter]
+}
+ÔÇëELIFECYCLEÔÇë Command failed with exit code 1.
