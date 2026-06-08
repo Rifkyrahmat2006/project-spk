@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\TopsisResult;
+use App\Models\TopsisSnapshot;
 use App\Models\Course;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -22,15 +23,23 @@ class TopsisResultController extends Controller
             ->with(['candidate.user', 'course'])
             ->whereIn('course_id', $assignedCourseIds)
             ->orderBy('course_id')
-            ->orderBy('score', 'desc')
+            ->orderBy('preference_score', 'desc')
             ->get()
             ->groupBy('course_id');
 
         $courses = $user->assignedCourses;
+        
+        // Get snapshots for each course
+        $snapshots = TopsisSnapshot::whereIn('course_id', $assignedCourseIds)
+            ->orderBy('snapshotted_at', 'desc')
+            ->get()
+            ->groupBy('course_id')
+            ->map(fn($group) => $group->first());
 
         return Inertia::render('spk/admin/TopsisResults', [
             'results' => $results,
             'courses' => $courses,
+            'snapshots' => $snapshots,
         ]);
     }
 
@@ -46,7 +55,7 @@ class TopsisResultController extends Controller
 
         $results = TopsisResult::where('course_id', $course->id)
             ->with(['candidate.user', 'course'])
-            ->orderBy('score', 'desc')
+            ->orderBy('preference_score', 'desc')
             ->get();
 
         return Inertia::render('spk/admin/TopsisResultDetail', [

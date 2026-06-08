@@ -2,20 +2,28 @@ import { usePage, useForm, router } from '@inertiajs/react';
 import { Save, Search } from 'lucide-react';
 import React, { useState } from 'react';
 
+interface PageProps {
+    [key: string]: any;
+    course?: any;
+    courses?: any[];
+    criteria?: any[];
+    candidates?: any[];
+}
+
 export default function ScoreInput() {
-    const { props } = usePage();
-    const { data, setData, post, processing, reset } = useForm({
-        candidate_id: '',
-        course_id: props.course?.id || '',
-        scores: [] as any[],
-    });
-
-    const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
-
+    const { props } = usePage<PageProps>();
     const course = props.course || {};
     const courses = props.courses || [];
     const criteria = props.criteria || [];
     const candidates = props.candidates || [];
+
+    const { data, setData, post, processing, reset } = useForm({
+        candidate_id: '',
+        course_id: course.id || '',
+        scores: [] as any[],
+    });
+
+    const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
 
     const handleCandidateSelect = (candidate: any) => {
         setSelectedCandidate(candidate);
@@ -47,7 +55,8 @@ export default function ScoreInput() {
 
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('admin.scores.store'), {
+        // Use router.post or fixed route helper if available. Assuming router.post for Inertia.
+        router.post('/admin/scores', data, {
             onSuccess: () => {
                 alert('Nilai berhasil disimpan!');
             },
@@ -87,7 +96,7 @@ export default function ScoreInput() {
                             Daftar Kandidat
                         </h2>
                     </div>
-                    <div className="max-h-[600px] divide-y overflow-y-auto">
+                    <div className="max-h-150 divide-y overflow-y-auto">
                         {candidates.map((c: any) => (
                             <button
                                 key={c.id}
@@ -99,11 +108,9 @@ export default function ScoreInput() {
                                 }`}
                             >
                                 <p className="font-medium text-gray-900">
-                                    {c.user?.name}
+                                    {c.name}
                                 </p>
-                                <p className="text-xs text-gray-500">
-                                    {c.user?.nim}
-                                </p>
+                                <p className="text-xs text-gray-500">{c.nim}</p>
                                 <div className="mt-1">
                                     <span
                                         className={`rounded-full px-1.5 py-0.5 text-[10px] ${

@@ -1,5 +1,17 @@
-import { usePage, useForm } from '@inertiajs/react';
-import { Plus, Pencil, Trash2, X, Lock, Unlock } from 'lucide-react';
+import { usePage, useForm, router } from '@inertiajs/react';
+import {
+    Plus,
+    Pencil,
+    Trash2,
+    X,
+    Lock,
+    Unlock,
+    Globe,
+    CalendarDays,
+    AlertTriangle,
+    Eye,
+    EyeOff,
+} from 'lucide-react';
 import React, { useState } from 'react';
 
 interface FormData {
@@ -22,12 +34,69 @@ const empty: FormData = {
 
 export default function PeriodManagement() {
     const { props } = usePage();
-    const { data, setData, post, processing, errors, reset } =
+    const { data, setData, post, put, processing, errors, reset } =
         useForm<FormData>(empty);
     const [modal, setModal] = useState<'create' | 'edit' | null>(null);
     const [selected, setSelected] = useState<any>(null);
+    const [confirmAction, setConfirmAction] = useState<{
+        periodId: string;
+        action: string;
+    } | null>(null);
 
     const periods = props.periods || [];
+
+    const handleCreate = () => {
+        post('/superadmin/periods', {
+            onSuccess: () => {
+                setModal(null);
+                reset();
+            },
+        });
+    };
+
+    const handleAction = () => {
+        if (!confirmAction) return;
+        const { periodId, action } = confirmAction;
+
+        post(`/superadmin/periods/${periodId}/${action}`, {
+            onSuccess: () => setConfirmAction(null),
+        });
+    };
+
+    const statusBadge = (p: any) => {
+        if (p.is_locked)
+            return (
+                <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                    Terkunci
+                </span>
+            );
+        if (p.is_active)
+            return (
+                <span className="rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700">
+                    Aktif
+                </span>
+            );
+        return (
+            <span className="rounded-full bg-yellow-100 px-2.5 py-1 text-xs font-medium text-yellow-700">
+                Selesai
+            </span>
+        );
+    };
+
+    const actionLabels: Record<string, string> = {
+        lock: 'Kunci Periode',
+        unlock: 'Buka Kunci Periode',
+        publish: 'Publikasikan Hasil',
+        unpublish: 'Batalkan Publikasi',
+    };
+
+    const actionDescs: Record<string, string> = {
+        lock: 'Setelah dikunci, tidak ada data yang dapat diubah. Kalkulasi TOPSIS akan diblokir.',
+        unlock: 'Periode akan dibuka kembali, kalkulasi ulang TOPSIS akan diizinkan.',
+        publish:
+            'Hasil seleksi akan dapat dilihat oleh CalonAsPrak yang terdaftar.',
+        unpublish: 'Hasil seleksi akan disembunyikan dari CalonAsPrak.',
+    };
 
     const openCreate = () => {
         reset();
@@ -49,14 +118,14 @@ export default function PeriodManagement() {
 
     const handleSave = () => {
         if (modal === 'create') {
-            post(route('superadmin.periods.store'), {
+            post('/superadmin/periods', {
                 onSuccess: () => {
                     setModal(null);
                     reset();
                 },
             });
         } else if (modal === 'edit' && selected) {
-            post(route('superadmin.periods.update', selected.id), {
+            put(`/superadmin/periods/${selected.id}`, {
                 onSuccess: () => {
                     setModal(null);
                     reset();
@@ -67,7 +136,13 @@ export default function PeriodManagement() {
 
     const handleDelete = (id: string) => {
         if (window.confirm('Apakah Anda yakin ingin menghapus periode ini?')) {
-            window.location.href = route('superadmin.periods.destroy', id);
+            router.delete(`/superadmin/periods/${id}`, {
+                onSuccess: () => {
+                    router.visit('/superadmin/periods', {
+                        preserveScroll: true,
+                    });
+                },
+            });
         }
     };
 
@@ -90,79 +165,157 @@ export default function PeriodManagement() {
                 </button>
             </div>
 
-            <div className="grid gap-4">
+            <div className="space-y-4">
+                {periods.length === 0 && (
+                    <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
+                        <CalendarDays
+                            size={40}
+                            className="mx-auto mb-3 text-gray-300"
+                        />
+                        <p className="text-gray-500">
+                            Belum ada periode seleksi.
+                        </p>
+                    </div>
+                )}
                 {periods.map((period: any) => (
                     <div
                         key={period.id}
-                        className="rounded-xl border border-gray-200 bg-white p-6"
+                        className="rounded-xl border border-gray-200 bg-white p-5"
                     >
-                        <div className="flex items-start justify-between">
+                        <div className="flex items-start justify-between gap-4">
                             <div className="flex-1">
-                                <div className="mb-2 flex items-center gap-3">
+                                <div className="mb-2 flex flex-wrap items-center gap-3">
                                     <h3 className="text-lg font-semibold text-gray-900">
                                         {period.name}
                                     </h3>
-                                    <div className="flex gap-2">
-                                        {period.is_active && (
-                                            <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
-                                                Aktif
-                                            </span>
-                                        )}
-                                        {period.is_locked && (
-                                            <span className="flex items-center gap-1 rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800">
-                                                <Lock size={12} /> Terkunci
-                                            </span>
-                                        )}
-                                    </div>
+                                    {statusBadge(period)}
+                                    {period.is_published && (
+                                        <span className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700">
+                                            Dipublikasikan
+                                        </span>
+                                    )}
+                                    {period.show_scores && (
+                                        <span className="rounded-full bg-purple-100 px-2.5 py-1 text-xs font-medium text-purple-700">
+                                            Skor Terlihat
+                                        </span>
+                                    )}
                                 </div>
                                 {period.description && (
                                     <p className="mb-3 text-sm text-gray-600">
                                         {period.description}
                                     </p>
                                 )}
-                                <div className="grid grid-cols-2 gap-4 text-sm">
-                                    <div>
-                                        <p className="text-gray-500">
-                                            Tanggal Mulai
-                                        </p>
-                                        <p className="font-medium text-gray-900">
-                                            {new Date(
-                                                period.start_date,
-                                            ).toLocaleDateString('id-ID', {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric',
-                                            })}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p className="text-gray-500">
-                                            Tanggal Selesai
-                                        </p>
-                                        <p className="font-medium text-gray-900">
-                                            {new Date(
-                                                period.end_date,
-                                            ).toLocaleDateString('id-ID', {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric',
-                                            })}
-                                        </p>
-                                    </div>
+                                <div className="flex items-center gap-4 text-sm text-gray-600">
+                                    <span className="flex items-center gap-1.5">
+                                        <CalendarDays size={14} /> Mulai:{' '}
+                                        {new Date(
+                                            period.start_date,
+                                        ).toLocaleDateString('id-ID', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric',
+                                        })}
+                                    </span>
+                                    <span className="flex items-center gap-1.5">
+                                        <CalendarDays size={14} /> Selesai:{' '}
+                                        {new Date(
+                                            period.end_date,
+                                        ).toLocaleDateString('id-ID', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric',
+                                        })}
+                                    </span>
+                                </div>
+                                <div className="mt-4 flex gap-2">
+                                    <button
+                                        onClick={() => openEdit(period)}
+                                        className="flex items-center gap-1 rounded bg-yellow-100 px-3 py-1.5 text-xs font-medium text-yellow-800 hover:bg-yellow-200"
+                                    >
+                                        <Pencil size={14} /> Edit
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(period.id)}
+                                        className="flex items-center gap-1 rounded bg-red-100 px-3 py-1.5 text-xs font-medium text-red-800 hover:bg-red-200"
+                                    >
+                                        <Trash2 size={14} /> Hapus
+                                    </button>
                                 </div>
                             </div>
-                            <div className="flex gap-2">
+
+                            <div className="flex shrink-0 flex-col gap-2">
+                                {!period.is_locked ? (
+                                    <button
+                                        onClick={() =>
+                                            setConfirmAction({
+                                                periodId: period.id,
+                                                action: 'lock',
+                                            })
+                                        }
+                                        className="flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-1.5 text-sm text-gray-700 transition-all hover:bg-gray-200"
+                                    >
+                                        <Lock size={14} /> Kunci
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() =>
+                                            setConfirmAction({
+                                                periodId: period.id,
+                                                action: 'unlock',
+                                            })
+                                        }
+                                        className="flex items-center gap-1.5 rounded-lg bg-amber-50 px-3 py-1.5 text-sm text-amber-700 transition-all hover:bg-amber-100"
+                                    >
+                                        <Unlock size={14} /> Buka Kunci
+                                    </button>
+                                )}
+
+                                {!period.is_published ? (
+                                    <button
+                                        onClick={() =>
+                                            setConfirmAction({
+                                                periodId: period.id,
+                                                action: 'publish',
+                                            })
+                                        }
+                                        className="flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-1.5 text-sm text-blue-700 transition-all hover:bg-blue-100"
+                                    >
+                                        <Globe size={14} /> Publikasikan
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() =>
+                                            setConfirmAction({
+                                                periodId: period.id,
+                                                action: 'unpublish',
+                                            })
+                                        }
+                                        className="flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-sm text-red-700 transition-all hover:bg-red-100"
+                                    >
+                                        <X size={14} /> Unpublish
+                                    </button>
+                                )}
+
                                 <button
-                                    onClick={() => openEdit(period)}
-                                    className="flex items-center gap-1 rounded bg-yellow-100 px-3 py-1.5 text-xs font-medium text-yellow-800 hover:bg-yellow-200"
+                                    onClick={() =>
+                                        router.post(
+                                            `/superadmin/periods/${period.id}/toggle-scores`,
+                                            {},
+                                            { preserveScroll: true },
+                                        )
+                                    }
+                                    className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm transition-all ${period.show_scores ? 'bg-purple-50 text-purple-700 hover:bg-purple-100' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}
                                 >
-                                    <Pencil size={14} /> Edit
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(period.id)}
-                                    className="flex items-center gap-1 rounded bg-red-100 px-3 py-1.5 text-xs font-medium text-red-800 hover:bg-red-200"
-                                >
-                                    <Trash2 size={14} /> Hapus
+                                    {period.show_scores ? (
+                                        <>
+                                            <EyeOff size={14} /> Sembunyikan
+                                            Skor
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Eye size={14} /> Tampilkan Skor
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </div>
@@ -174,7 +327,7 @@ export default function PeriodManagement() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
                     <div className="w-full max-w-md rounded-xl bg-white p-6">
                         <div className="mb-4 flex items-start justify-between">
-                            <h2 className="text-xl font-semibold">
+                            <h2 className="text-xl font-semibold text-gray-900">
                                 {modal === 'create'
                                     ? 'Tambah Periode'
                                     : 'Edit Periode'}
@@ -195,7 +348,7 @@ export default function PeriodManagement() {
                             className="space-y-4"
                         >
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     Nama Periode
                                 </label>
                                 <input
@@ -204,7 +357,7 @@ export default function PeriodManagement() {
                                     onChange={(e) =>
                                         setData('name', e.target.value)
                                     }
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                     required
                                 />
                                 {errors.name && (
@@ -215,7 +368,7 @@ export default function PeriodManagement() {
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     Deskripsi
                                 </label>
                                 <textarea
@@ -223,7 +376,7 @@ export default function PeriodManagement() {
                                     onChange={(e) =>
                                         setData('description', e.target.value)
                                     }
-                                    className="h-20 w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="h-20 w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                 />
                                 {errors.description && (
                                     <p className="mt-1 text-sm text-red-600">
@@ -233,7 +386,7 @@ export default function PeriodManagement() {
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     Tanggal Mulai
                                 </label>
                                 <input
@@ -242,7 +395,7 @@ export default function PeriodManagement() {
                                     onChange={(e) =>
                                         setData('start_date', e.target.value)
                                     }
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                     required
                                 />
                                 {errors.start_date && (
@@ -253,7 +406,7 @@ export default function PeriodManagement() {
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     Tanggal Selesai
                                 </label>
                                 <input
@@ -262,7 +415,7 @@ export default function PeriodManagement() {
                                     onChange={(e) =>
                                         setData('end_date', e.target.value)
                                     }
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                     required
                                 />
                                 {errors.end_date && (
@@ -273,7 +426,7 @@ export default function PeriodManagement() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="flex items-center gap-2 text-sm font-medium">
+                                <label className="flex items-center gap-2 text-sm font-medium text-gray-900">
                                     <input
                                         type="checkbox"
                                         checked={data.is_active}
@@ -287,7 +440,7 @@ export default function PeriodManagement() {
                                     />
                                     Aktifkan Periode
                                 </label>
-                                <label className="flex items-center gap-2 text-sm font-medium">
+                                <label className="flex items-center gap-2 text-sm font-medium text-gray-900">
                                     <input
                                         type="checkbox"
                                         checked={data.is_locked}
@@ -307,7 +460,7 @@ export default function PeriodManagement() {
                                 <button
                                     type="button"
                                     onClick={() => setModal(null)}
-                                    className="rounded-md border border-gray-300 px-4 py-2 hover:bg-gray-50"
+                                    className="rounded-md border border-gray-300 px-4 py-2 text-gray-900 hover:bg-gray-50"
                                 >
                                     Batal
                                 </button>
@@ -320,6 +473,39 @@ export default function PeriodManagement() {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+            {/* Confirm Action Modal */}
+            {confirmAction && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl">
+                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100">
+                            <AlertTriangle
+                                size={22}
+                                className="text-yellow-600"
+                            />
+                        </div>
+                        <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                            {actionLabels[confirmAction.action]}
+                        </h3>
+                        <p className="mb-5 text-sm text-gray-500">
+                            {actionDescs[confirmAction.action]}
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setConfirmAction(null)}
+                                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                onClick={handleAction}
+                                className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                            >
+                                Konfirmasi
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

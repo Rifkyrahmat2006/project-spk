@@ -1,4 +1,12 @@
 import { createInertiaApp } from '@inertiajs/react';
+
+declare global {
+    interface Window {
+        google: any;
+        onload: any;
+    }
+}
+
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
@@ -10,7 +18,11 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
-    layout: (name) => {
+    layout: (name, page) => {
+        // Auth pages with custom full-page layout (gradient bg, no wrapper)
+        if (name === 'auth/login' || name === 'auth/register') return null;
+        // If page explicitly sets layout to null, respect that
+        if (page.layout === null) return null;
         switch (true) {
             case name === 'welcome':
                 return null;

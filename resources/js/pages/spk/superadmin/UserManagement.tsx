@@ -26,7 +26,7 @@ const empty: FormData = {
 
 export default function UserManagement() {
     const { props } = usePage();
-    const { data, setData, post, processing, errors, reset } =
+    const { data, setData, post, put, processing, errors, reset } =
         useForm<FormData>(empty);
     const [modal, setModal] = useState<'create' | 'edit' | null>(null);
     const [selected, setSelected] = useState<any>(null);
@@ -41,14 +41,15 @@ export default function UserManagement() {
 
     const openEdit = (user: any) => {
         setData({
-            name: user.name,
-            email: user.email,
+            name: user.name || '',
+            email: user.email || '',
             nim: user.nim || '',
             password: '',
             password_confirmation: '',
-            role: user.role,
-            is_active: user.is_active,
-            course_ids: user.assigned_courses?.map((c: any) => c.id) || [],
+            role: user.role || 'user',
+            is_active: !!user.is_active,
+            course_ids:
+                user.assigned_courses?.map((c: any) => String(c.id)) || [],
         });
         setSelected(user);
         setModal('edit');
@@ -56,14 +57,14 @@ export default function UserManagement() {
 
     const handleSave = () => {
         if (modal === 'create') {
-            post(route('superadmin.users.store'), {
+            post('/superadmin/users', {
                 onSuccess: () => {
                     setModal(null);
                     reset();
                 },
             });
         } else if (modal === 'edit' && selected) {
-            post(route('superadmin.users.update', selected.id), {
+            put(`/superadmin/users/${selected.id}`, {
                 onSuccess: () => {
                     setModal(null);
                     reset();
@@ -74,16 +75,23 @@ export default function UserManagement() {
 
     const handleDelete = (id: string) => {
         if (window.confirm('Apakah Anda yakin ingin menghapus pengguna ini?')) {
-            window.location.href = route('superadmin.users.destroy', id);
+            router.delete(`/superadmin/users/${id}`, {
+                onSuccess: () => {
+                    router.visit('/superadmin/users', {
+                        preserveScroll: true,
+                    });
+                },
+            });
         }
     };
 
     const toggleCourse = (courseId: string) => {
+        const id = String(courseId);
         setData((prev) => ({
             ...prev,
-            course_ids: prev.course_ids.includes(courseId)
-                ? prev.course_ids.filter((id) => id !== courseId)
-                : [...prev.course_ids, courseId],
+            course_ids: prev.course_ids.includes(id)
+                ? prev.course_ids.filter((i) => i !== id)
+                : [...prev.course_ids, id],
         }));
     };
 
@@ -199,7 +207,7 @@ export default function UserManagement() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
                     <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6">
                         <div className="mb-4 flex items-start justify-between">
-                            <h2 className="text-xl font-semibold">
+                            <h2 className="text-xl font-semibold text-gray-900">
                                 {modal === 'create'
                                     ? 'Tambah Pengguna'
                                     : 'Edit Pengguna'}
@@ -220,7 +228,7 @@ export default function UserManagement() {
                             className="space-y-4"
                         >
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     Nama Lengkap
                                 </label>
                                 <input
@@ -229,7 +237,7 @@ export default function UserManagement() {
                                     onChange={(e) =>
                                         setData('name', e.target.value)
                                     }
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                     required
                                 />
                                 {errors.name && (
@@ -240,7 +248,7 @@ export default function UserManagement() {
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     Email
                                 </label>
                                 <input
@@ -249,7 +257,7 @@ export default function UserManagement() {
                                     onChange={(e) =>
                                         setData('email', e.target.value)
                                     }
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                     required
                                 />
                                 {errors.email && (
@@ -260,7 +268,7 @@ export default function UserManagement() {
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     NIM
                                 </label>
                                 <input
@@ -269,7 +277,7 @@ export default function UserManagement() {
                                     onChange={(e) =>
                                         setData('nim', e.target.value)
                                     }
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                 />
                                 {errors.nim && (
                                     <p className="mt-1 text-sm text-red-600">
@@ -279,7 +287,7 @@ export default function UserManagement() {
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     Role
                                 </label>
                                 <select
@@ -287,7 +295,7 @@ export default function UserManagement() {
                                     onChange={(e) =>
                                         setData('role', e.target.value as any)
                                     }
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                     required
                                 >
                                     <option value="user">
@@ -308,7 +316,7 @@ export default function UserManagement() {
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     {modal === 'create'
                                         ? 'Password'
                                         : 'Password (Kosongkan jika tidak ingin mengubah)'}
@@ -319,7 +327,7 @@ export default function UserManagement() {
                                     onChange={(e) =>
                                         setData('password', e.target.value)
                                     }
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                     required={modal === 'create'}
                                 />
                                 {errors.password && (
@@ -330,7 +338,7 @@ export default function UserManagement() {
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     Konfirmasi Password
                                 </label>
                                 <input
@@ -342,13 +350,13 @@ export default function UserManagement() {
                                             e.target.value,
                                         )
                                     }
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                     required={modal === 'create'}
                                 />
                             </div>
 
                             <div className="flex items-center">
-                                <label className="flex items-center gap-2 text-sm font-medium">
+                                <label className="flex items-center gap-2 text-sm font-medium text-gray-900">
                                     <input
                                         type="checkbox"
                                         checked={data.is_active}
@@ -366,7 +374,7 @@ export default function UserManagement() {
 
                             {data.role === 'admin' && courses.length > 0 && (
                                 <div>
-                                    <label className="mb-2 block text-sm font-medium">
+                                    <label className="mb-2 block text-sm font-medium text-gray-900">
                                         Mata Kuliah yang Ditugaskan
                                     </label>
                                     <div className="max-h-40 space-y-2 overflow-y-auto">
@@ -378,10 +386,12 @@ export default function UserManagement() {
                                                 <input
                                                     type="checkbox"
                                                     checked={data.course_ids.includes(
-                                                        course.id,
+                                                        String(course.id),
                                                     )}
                                                     onChange={() =>
-                                                        toggleCourse(course.id)
+                                                        toggleCourse(
+                                                            String(course.id),
+                                                        )
                                                     }
                                                     className="h-4 w-4 text-blue-600"
                                                 />
@@ -398,7 +408,7 @@ export default function UserManagement() {
                                 <button
                                     type="button"
                                     onClick={() => setModal(null)}
-                                    className="rounded-md border border-gray-300 px-4 py-2 hover:bg-gray-50"
+                                    className="rounded-md border border-gray-300 px-4 py-2 text-gray-900 hover:bg-gray-50"
                                 >
                                     Batal
                                 </button>

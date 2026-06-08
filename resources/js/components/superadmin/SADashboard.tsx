@@ -326,7 +326,7 @@ export default function SADashboard() {
                     {criteriaWeightData.map((c, i) => (
                         <div key={c.name} className="flex items-center gap-3">
                             <span
-                                className={`min-w-[30px] rounded px-2 py-0.5 text-center font-mono text-xs font-bold ${c.type === 'cost' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}
+                                className={`min-w-7.5 rounded px-2 py-0.5 text-center font-mono text-xs font-bold ${c.type === 'cost' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}
                             >
                                 {c.name}
                             </span>

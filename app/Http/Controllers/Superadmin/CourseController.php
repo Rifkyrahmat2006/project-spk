@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Validation\Rule;
@@ -15,12 +16,16 @@ class CourseController extends Controller
      */
     public function index()
     {
-        $courses = Course::withCount('candidates')
+        $courses = Course::with(['assignedAdmins', 'candidates'])
+            ->withCount('candidates')
             ->orderBy('code')
             ->get();
 
+        $admins = User::where('role', 'admin')->get();
+
         return Inertia::render('spk/superadmin/CourseManagement', [
             'courses' => $courses,
+            'admins' => $admins,
         ]);
     }
 
@@ -33,10 +38,29 @@ class CourseController extends Controller
             'code' => 'required|string|max:10|unique:courses,code',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'is_active' => 'boolean',
+            'quota' => 'required|integer|min:1',
+            'isActive' => 'boolean',
+            'assignedAdminIds' => 'array',
+            'assignedAdminIds.*' => 'exists:users,id',
         ]);
 
-        $course = Course::create($validated);
+        $courseData = [
+            'code' => $validated['code'],
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'quota' => $validated['quota'],
+            'is_active' => $validated['isActive'] ?? true,
+        ];
+
+        $course = Course::create($courseData);
+
+        if (!empty($validated['assignedAdminIds'])) {
+            $syncData = [];
+            foreach ($validated['assignedAdminIds'] as $adminId) {
+                $syncData[$adminId] = ['assigned_by' => auth()->id()];
+            }
+            $course->assignedAdmins()->attach($syncData);
+        }
 
         return redirect()->route('superadmin.courses.index')
             ->with('success', 'Course created successfully.');
@@ -51,10 +75,27 @@ class CourseController extends Controller
             'code' => ['required', 'string', 'max:10', Rule::unique('courses')->ignore($course->id)],
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'is_active' => 'boolean',
+            'quota' => 'required|integer|min:1',
+            'isActive' => 'boolean',
+            'assignedAdminIds' => 'array',
+            'assignedAdminIds.*' => 'exists:users,id',
         ]);
 
-        $course->update($validated);
+        $courseData = [
+            'code' => $validated['code'],
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'quota' => $validated['quota'],
+            'is_active' => $validated['isActive'] ?? true,
+        ];
+
+        $course->update($courseData);
+
+        $syncData = [];
+        foreach ($validated['assignedAdminIds'] ?? [] as $adminId) {
+            $syncData[$adminId] = ['assigned_by' => auth()->id()];
+        }
+        $course->assignedAdmins()->sync($syncData);
 
         return redirect()->route('superadmin.courses.index')
             ->with('success', 'Course updated successfully.');

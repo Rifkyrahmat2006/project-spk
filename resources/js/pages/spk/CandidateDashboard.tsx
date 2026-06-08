@@ -22,7 +22,7 @@ export default function CandidateDashboard() {
             {/* User Info Card */}
             <div className="rounded-xl border border-gray-200 bg-white p-6">
                 <div className="flex items-center gap-4">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-2xl font-bold text-white">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br from-blue-400 to-blue-600 text-2xl font-bold text-white">
                         {user.name?.charAt(0)}
                     </div>
                     <div>
@@ -46,7 +46,7 @@ export default function CandidateDashboard() {
 
             {/* Period Status */}
             {activePeriod && (
-                <div className="rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
+                <div className="rounded-xl bg-linear-to-r from-blue-500 to-blue-600 p-6 text-white">
                     <h2 className="mb-2 text-lg font-semibold">
                         Periode Seleksi Aktif
                     </h2>

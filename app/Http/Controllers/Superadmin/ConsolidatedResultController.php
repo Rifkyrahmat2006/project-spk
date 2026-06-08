@@ -26,7 +26,7 @@ class ConsolidatedResultController extends Controller
             ->with(['candidate.user', 'course'])
             ->when($selectedPeriodId, fn($q) => $q->whereHas('period', fn($pq) => $pq->where('id', $selectedPeriodId)))
             ->when($selectedCourseId, fn($q) => $q->where('course_id', $selectedCourseId))
-            ->orderBy('score', 'desc')
+            ->orderBy('preference_score', 'desc')
             ->get();
 
         return Inertia::render('spk/superadmin/ConsolidatedResults', [
@@ -47,7 +47,7 @@ class ConsolidatedResultController extends Controller
             ->with(['candidate.user', 'course'])
             ->when($request->query('period_id'), fn($q) => $q->whereHas('period', fn($pq) => $pq->where('id', $request->query('period_id'))))
             ->when($request->query('course_id'), fn($q) => $q->where('course_id', $request->query('course_id')))
-            ->orderBy('score', 'desc')
+            ->orderBy('preference_score', 'desc')
             ->get();
 
         $filename = 'topsis-results-' . now()->format('Y-m-d-His') . '.csv';

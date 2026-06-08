@@ -87,4 +87,80 @@ class PeriodController extends Controller
         return redirect()->route('superadmin.periods.index')
             ->with('success', 'Selection period deleted successfully.');
     }
+
+    /**
+     * Lock a selection period
+     */
+    public function lock(SelectionPeriod $period)
+    {
+        if (auth()->user()->role !== 'superadmin') abort(403);
+
+        $period->update([
+            'is_locked' => true,
+            'locked_at' => now(),
+            'is_active' => false,
+        ]);
+
+        return redirect()->route('superadmin.periods.index');
+    }
+
+    /**
+     * Unlock a selection period
+     */
+    public function unlock(SelectionPeriod $period)
+    {
+        if (auth()->user()->role !== 'superadmin') abort(403);
+
+        $period->update([
+            'is_locked' => false,
+            'locked_at' => null,
+            'is_active' => true,
+        ]);
+
+        return redirect()->route('superadmin.periods.index');
+    }
+
+    /**
+     * Publish a selection period
+     */
+    public function publish(SelectionPeriod $period)
+    {
+        if (auth()->user()->role !== 'superadmin') abort(403);
+
+        $period->update([
+            'is_published' => true,
+            'published_at' => now(),
+        ]);
+
+        return redirect()->route('superadmin.periods.index');
+    }
+
+    /**
+     * Unpublish a selection period
+     */
+    public function unpublish(SelectionPeriod $period)
+    {
+        if (auth()->user()->role !== 'superadmin') abort(403);
+
+        $period->update([
+            'is_published' => false,
+            'published_at' => null,
+        ]);
+
+        return redirect()->route('superadmin.periods.index');
+    }
+
+    /**
+     * Toggle show scores for a selection period
+     */
+    public function toggleScores(SelectionPeriod $period)
+    {
+        if (auth()->user()->role !== 'superadmin') abort(403);
+
+        $period->update([
+            'show_scores' => !$period->show_scores,
+        ]);
+
+        return redirect()->route('superadmin.periods.index');
+    }
 }

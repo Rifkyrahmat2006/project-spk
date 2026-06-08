@@ -12,8 +12,14 @@ use App\Http\Controllers\Admin\ScoreController;
 use App\Http\Controllers\Admin\TopsisResultController;
 use App\Http\Controllers\Admin\TopsisController;
 use App\Http\Controllers\Candidate\PortalController;
+use App\Http\Controllers\Auth\GoogleLoginController;
 
 Route::inertia('/', 'welcome')->name('home');
+
+// Google OAuth Routes (guest)
+Route::middleware('guest')->group(function () {
+    Route::post('/auth/google/authenticate', [GoogleLoginController::class, 'authenticate'])->name('google.authenticate');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -24,6 +30,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('criteria', CriteriaController::class);
         Route::resource('users', UserManagementController::class);
         Route::resource('periods', PeriodController::class);
+        Route::post('periods/{period}/lock', [PeriodController::class, 'lock'])->name('periods.lock');
+        Route::post('periods/{period}/unlock', [PeriodController::class, 'unlock'])->name('periods.unlock');
+        Route::post('periods/{period}/publish', [PeriodController::class, 'publish'])->name('periods.publish');
+        Route::post('periods/{period}/unpublish', [PeriodController::class, 'unpublish'])->name('periods.unpublish');
+        Route::post('periods/{period}/toggle-scores', [PeriodController::class, 'toggleScores'])->name('periods.toggleScores');
         Route::get('consolidated-results', [ConsolidatedResultController::class, 'index'])->name('consolidated.index');
     });
 

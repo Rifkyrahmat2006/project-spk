@@ -1,20 +1,22 @@
-import { AppContent } from '@/components/app-content';
-import { AppShell } from '@/components/app-shell';
 import { AppSidebar } from '@/components/app-sidebar';
-import { AppSidebarHeader } from '@/components/app-sidebar-header';
-import type { AppLayoutProps } from '@/types';
+import { AppHeader } from '@/components/app-header';
+import type { ReactNode } from 'react';
 
-export default function AppSidebarLayout({
-    children,
-    breadcrumbs = [],
-}: AppLayoutProps) {
+type Props = {
+    children: ReactNode;
+    breadcrumbs?: any[];
+};
+
+export default function AppSidebarLayout({ children }: Props) {
     return (
-        <AppShell variant="sidebar">
+        <div className="flex h-screen w-full overflow-hidden">
             <AppSidebar />
-            <AppContent variant="sidebar" className="overflow-x-hidden">
-                <AppSidebarHeader breadcrumbs={breadcrumbs} />
-                {children}
-            </AppContent>
-        </AppShell>
+            <div className="flex flex-1 flex-col overflow-hidden">
+                <AppHeader />
+                <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
+                    {children}
+                </main>
+            </div>
+        </div>
     );
 }

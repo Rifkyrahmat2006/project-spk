@@ -16,7 +16,7 @@ export default function CandidatePortal() {
                 'Apakah Anda yakin ingin mendaftar seleksi mata kuliah ini?',
             )
         ) {
-            post(route('portal.apply'), {
+            post('/portal/apply', {
                 data: { course_id: courseId },
                 preserveScroll: true,
             });
@@ -47,7 +47,7 @@ export default function CandidatePortal() {
 
             {/* Candidate Info */}
             {candidate && (
-                <div className="rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
+                <div className="rounded-xl bg-linear-to-r from-blue-500 to-blue-600 p-6 text-white">
                     <div className="flex items-center gap-4">
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20">
                             <FileText size={22} />
@@ -163,17 +163,20 @@ export default function CandidatePortal() {
                                         {result.course?.name}
                                     </p>
                                     <p className="text-sm text-gray-500">
-                                        Skor: {result.score.toFixed(4)}
+                                        Skor:{' '}
+                                        {Number(
+                                            result.preference_score || 0,
+                                        ).toFixed(4)}
                                     </p>
                                 </div>
                                 <span
                                     className={`rounded-full px-3 py-1 text-sm font-medium ${
-                                        result.is_qualified
+                                        result.is_accepted
                                             ? 'bg-green-100 text-green-800'
                                             : 'bg-red-100 text-red-800'
                                     }`}
                                 >
-                                    {result.is_qualified
+                                    {result.is_accepted
                                         ? 'Lolos'
                                         : 'Tidak Lolos'}
                                 </span>

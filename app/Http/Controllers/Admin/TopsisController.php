@@ -8,9 +8,12 @@ use App\Models\SelectionPeriod;
 use App\Models\TopsisResult;
 use App\Services\TopsisService;
 use Inertia\Inertia;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TopsisController extends Controller
 {
+    use AuthorizesRequests;
+
     protected TopsisService $topsisService;
 
     public function __construct(TopsisService $topsisService)
@@ -109,7 +112,10 @@ class TopsisController extends Controller
      */
     public function calculateAll()
     {
-        $this->authorize('recalculateAll', TopsisResult::class);
+        $user = auth()->user();
+        if (!$user || !in_array($user->role, ['superadmin', 'admin'])) {
+            abort(403, 'Unauthorized.');
+        }
 
         try {
             $results = $this->topsisService->recalculateAll();
@@ -137,7 +143,10 @@ class TopsisController extends Controller
      */
     public function lock(SelectionPeriod $period)
     {
-        $this->authorize('lockPeriod', $period);
+        $user = auth()->user();
+        if (!$user || !in_array($user->role, ['superadmin', 'admin'])) {
+            abort(403, 'Unauthorized.');
+        }
 
         try {
             // Verify period is closed

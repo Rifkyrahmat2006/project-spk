@@ -56,7 +56,11 @@ class UserManagementController extends Controller
 
         // Assign courses if admin role
         if ($user->role === 'admin' && !empty($courseIds)) {
-            $user->assignedCourses()->attach($courseIds);
+            $syncData = [];
+            foreach ($courseIds as $id) {
+                $syncData[$id] = ['assigned_by' => auth()->id()];
+            }
+            $user->assignedCourses()->attach($syncData);
         }
 
         return redirect()->route('superadmin.users.index')
@@ -92,7 +96,11 @@ class UserManagementController extends Controller
 
         // Sync courses for admin
         if ($user->role === 'admin') {
-            $user->assignedCourses()->sync($courseIds);
+            $syncData = [];
+            foreach ($courseIds as $id) {
+                $syncData[$id] = ['assigned_by' => auth()->id()];
+            }
+            $user->assignedCourses()->sync($syncData);
         } else {
             $user->assignedCourses()->detach();
         }

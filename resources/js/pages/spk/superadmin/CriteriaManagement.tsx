@@ -22,7 +22,7 @@ const empty: FormData = {
 
 export default function CriteriaManagement() {
     const { props } = usePage();
-    const { data, setData, post, processing, errors, reset } =
+    const { data, setData, post, put, processing, errors, reset } =
         useForm<FormData>(empty);
     const [modal, setModal] = useState<'create' | 'edit' | null>(null);
     const [selected, setSelected] = useState<any>(null);
@@ -50,14 +50,14 @@ export default function CriteriaManagement() {
 
     const handleSave = () => {
         if (modal === 'create') {
-            post(route('superadmin.criteria.store'), {
+            post('/superadmin/criteria', {
                 onSuccess: () => {
                     setModal(null);
                     reset();
                 },
             });
         } else if (modal === 'edit' && selected) {
-            post(route('superadmin.criteria.update', selected.id), {
+            put(`/superadmin/criteria/${selected.id}`, {
                 onSuccess: () => {
                     setModal(null);
                     reset();
@@ -68,7 +68,13 @@ export default function CriteriaManagement() {
 
     const handleDelete = (id: string) => {
         if (window.confirm('Apakah Anda yakin ingin menghapus kriteria ini?')) {
-            window.location.href = route('superadmin.criteria.destroy', id);
+            router.delete(`/superadmin/criteria/${id}`, {
+                onSuccess: () => {
+                    router.visit('/superadmin/criteria', {
+                        preserveScroll: true,
+                    });
+                },
+            });
         }
     };
 
@@ -178,7 +184,7 @@ export default function CriteriaManagement() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                     <div className="w-full max-w-md rounded-xl bg-white p-6">
                         <div className="mb-4 flex items-start justify-between">
-                            <h2 className="text-xl font-semibold">
+                            <h2 className="text-xl font-semibold text-gray-900">
                                 {modal === 'create'
                                     ? 'Tambah Kriteria'
                                     : 'Edit Kriteria'}
@@ -199,7 +205,7 @@ export default function CriteriaManagement() {
                             className="space-y-4"
                         >
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     Kode Kriteria
                                 </label>
                                 <input
@@ -208,7 +214,7 @@ export default function CriteriaManagement() {
                                     onChange={(e) =>
                                         setData('code', e.target.value)
                                     }
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                     required
                                 />
                                 {errors.code && (
@@ -219,7 +225,7 @@ export default function CriteriaManagement() {
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     Nama Kriteria
                                 </label>
                                 <input
@@ -228,7 +234,7 @@ export default function CriteriaManagement() {
                                     onChange={(e) =>
                                         setData('name', e.target.value)
                                     }
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                     required
                                 />
                                 {errors.name && (
@@ -239,7 +245,7 @@ export default function CriteriaManagement() {
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     Bobot (0-1)
                                 </label>
                                 <input
@@ -254,7 +260,7 @@ export default function CriteriaManagement() {
                                             parseFloat(e.target.value) || 0,
                                         )
                                     }
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                     required
                                 />
                                 {errors.weight && (
@@ -265,7 +271,7 @@ export default function CriteriaManagement() {
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     Tipe
                                 </label>
                                 <select
@@ -278,7 +284,7 @@ export default function CriteriaManagement() {
                                                 | 'cost',
                                         )
                                     }
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                     required
                                 >
                                     <option value="benefit">
@@ -296,7 +302,7 @@ export default function CriteriaManagement() {
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     Deskripsi
                                 </label>
                                 <textarea
@@ -304,7 +310,7 @@ export default function CriteriaManagement() {
                                     onChange={(e) =>
                                         setData('description', e.target.value)
                                     }
-                                    className="h-20 w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="h-20 w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                 />
                                 {errors.description && (
                                     <p className="mt-1 text-sm text-red-600">
@@ -314,7 +320,7 @@ export default function CriteriaManagement() {
                             </div>
 
                             <div className="flex items-center">
-                                <label className="flex items-center gap-2 text-sm font-medium">
+                                <label className="flex items-center gap-2 text-sm font-medium text-gray-900">
                                     <input
                                         type="checkbox"
                                         checked={data.is_active}
@@ -334,7 +340,7 @@ export default function CriteriaManagement() {
                                 <button
                                     type="button"
                                     onClick={() => setModal(null)}
-                                    className="rounded-md border border-gray-300 px-4 py-2 hover:bg-gray-50"
+                                    className="rounded-md border border-gray-300 px-4 py-2 text-gray-900 hover:bg-gray-50"
                                 >
                                     Batal
                                 </button>

@@ -196,47 +196,79 @@ export default function SuperadminDashboard() {
                     <h2 className="mb-4 text-lg font-semibold text-gray-900">
                         Kandidat per Mata Kuliah
                     </h2>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={chartData}>
-                            <XAxis dataKey="name" />
-                            <YAxis />
-                            <Tooltip />
-                            <Bar dataKey="candidates" fill="#3b82f6" />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    <div className="h-80 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart
+                                data={chartData}
+                                margin={{
+                                    top: 10,
+                                    right: 30,
+                                    left: 0,
+                                    bottom: 0,
+                                }}
+                            >
+                                <XAxis dataKey="name" />
+                                <YAxis />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: '#fff',
+                                        borderRadius: '8px',
+                                        border: '1px solid #e5e7eb',
+                                    }}
+                                />
+                                <Bar
+                                    dataKey="candidates"
+                                    fill="#3b82f6"
+                                    radius={[4, 4, 0, 0]}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
                 </div>
 
                 <div className="rounded-xl border border-gray-200 bg-white p-6">
                     <h2 className="mb-4 text-lg font-semibold text-gray-900">
                         Distribusi Bobot Kriteria
                     </h2>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                            <Pie
-                                data={criteriaData}
-                                cx="50%"
-                                cy="50%"
-                                labelLine={false}
-                                label={({ name, weight }) =>
-                                    `${name}: ${weight.toFixed(0)}%`
-                                }
-                                outerRadius={100}
-                                fill="#8884d8"
-                                dataKey="weight"
-                            >
-                                {criteriaData.map(
-                                    (entry: any, index: number) => (
-                                        <Cell
-                                            key={`cell-${index}`}
-                                            fill={COLORS[index % COLORS.length]}
-                                        />
-                                    ),
-                                )}
-                            </Pie>
-                            <Tooltip />
-                            <Legend />
-                        </PieChart>
-                    </ResponsiveContainer>
+                    <div className="h-80 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={criteriaData}
+                                    cx="50%"
+                                    cy="50%"
+                                    labelLine={true}
+                                    label={({ name, weight }) =>
+                                        `${name}: ${weight.toFixed(0)}%`
+                                    }
+                                    outerRadius={80}
+                                    fill="#8884d8"
+                                    dataKey="weight"
+                                >
+                                    {criteriaData.map(
+                                        (entry: any, index: number) => (
+                                            <Cell
+                                                key={`cell-${index}`}
+                                                fill={
+                                                    COLORS[
+                                                        index % COLORS.length
+                                                    ]
+                                                }
+                                            />
+                                        ),
+                                    )}
+                                </Pie>
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: '#fff',
+                                        borderRadius: '8px',
+                                        border: '1px solid #e5e7eb',
+                                    }}
+                                />
+                                <Legend verticalAlign="bottom" height={36} />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
                 </div>
             </div>
 

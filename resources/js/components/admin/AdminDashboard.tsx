@@ -9,8 +9,16 @@ import {
 } from 'lucide-react';
 import { usePage, Link } from '@inertiajs/react';
 
+interface PageProps {
+    [key: string]: any;
+    myCourses?: any[];
+    criteria?: any[];
+    periods?: any[];
+    coursesData?: any;
+}
+
 export default function AdminDashboard() {
-    const { props } = usePage();
+    const { props } = usePage<PageProps>();
     const user = props.auth?.user;
     const myCourses = props.myCourses || [];
     const criteria = props.criteria || [];
@@ -60,11 +68,11 @@ export default function AdminDashboard() {
     return (
         <div className="space-y-6">
             <div>
-                u<h1 className="text-gray-900">Dashboard KoorAsPrak</h1>
+                <h1 className="text-gray-900">Dashboard KoorAsPrak</h1>
                 <p className="mt-1 text-sm text-gray-500">
                     Selamat datang,{' '}
                     <span className="font-medium text-gray-700">
-                        {currentUser?.name}
+                        {user?.name}
                     </span>
                     . Anda mengelola {myCourses.length} mata kuliah.
                 </p>
@@ -108,7 +116,13 @@ export default function AdminDashboard() {
             {/* Course Cards */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {courseStats.map(
-                    ({ course, candidates, accepted, completePct, quota }) => (
+                    ({
+                        course,
+                        candidates,
+                        accepted,
+                        completePct,
+                        quota,
+                    }: any) => (
                         <div
                             key={course.id}
                             className="rounded-xl border border-gray-200 bg-white p-5"
@@ -188,17 +202,13 @@ export default function AdminDashboard() {
 
                             <div className="flex gap-2">
                                 <Link
-                                    href={route('spk.candidates', {
-                                        course: course.id,
-                                    })}
+                                    href={`/admin/scores?course_id=${course.id}`}
                                     className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-blue-50 py-2 text-sm text-blue-600 transition-all hover:bg-blue-100"
                                 >
                                     <ClipboardList size={14} /> Nilai
                                 </Link>
                                 <Link
-                                    href={route('spk.rankings', {
-                                        course: course.id,
-                                    })}
+                                    href={`/admin/topsis?course_id=${course.id}`}
                                     className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-green-50 py-2 text-sm text-green-600 transition-all hover:bg-green-100"
                                 >
                                     <Trophy size={14} /> Hasil{' '}
@@ -224,7 +234,7 @@ export default function AdminDashboard() {
                                 className="flex items-center gap-3 py-1"
                             >
                                 <span
-                                    className={`min-w-[30px] rounded px-2 py-0.5 text-center font-mono text-xs font-bold ${c.type === 'cost' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}
+                                    className={`min-w-7.5 rounded px-2 py-0.5 text-center font-mono text-xs font-bold ${c.type === 'cost' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}
                                 >
                                     {c.code}
                                 </span>

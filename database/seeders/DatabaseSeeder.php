@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CriteriaSeeder::class,
             UserSeeder::class,
+            MockDataSeeder::class,
         ]);
     }
 }

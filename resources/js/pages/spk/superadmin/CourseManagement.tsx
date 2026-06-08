@@ -1,3 +1,4 @@
+import React from 'react';
 import { usePage, router } from '@inertiajs/react';
 import { Plus, Pencil, Trash2, X, BookOpen, Users } from 'lucide-react';
 import { useForm } from '@inertiajs/react';
@@ -22,7 +23,7 @@ const empty: FormData = {
 
 export default function CourseManagement() {
     const { props } = usePage();
-    const { data, setData, post, processing, errors, reset } =
+    const { data, setData, post, put, processing, errors, reset } =
         useForm<FormData>(empty);
 
     const courses = props.courses || [];
@@ -35,13 +36,13 @@ export default function CourseManagement() {
 
     const openEdit = (course: any) => {
         setData({
-            code: course.code,
-            name: course.name,
-            description: course.description,
-            quota: course.quota,
-            isActive: course.is_active,
+            code: course.code || '',
+            name: course.name || '',
+            description: course.description || '',
+            quota: course.quota || 3,
+            isActive: !!course.is_active,
             assignedAdminIds:
-                course.assigned_admins?.map((a: any) => a.id) || [],
+                course.assigned_admins?.map((a: any) => String(a.id)) || [],
         });
         setSelected(course);
         setModal('edit');
@@ -49,20 +50,20 @@ export default function CourseManagement() {
 
     const handleSave = () => {
         if (modal === 'create') {
-            post(route('superadmin.courses.store'), {
+            post('/superadmin/courses', {
                 onSuccess: () => {
                     setModal(null);
-                    router.visit(route('superadmin.courses.index'), {
+                    router.visit('/superadmin/courses', {
                         preserveScroll: true,
                     });
                 },
                 onError: () => setModal('create'),
             });
         } else if (modal === 'edit' && selected) {
-            post(route('superadmin.courses.update', selected.id), {
+            put(`/superadmin/courses/${selected.id}`, {
                 onSuccess: () => {
                     setModal(null);
-                    router.visit(route('superadmin.courses.index'), {
+                    router.visit('/superadmin/courses', {
                         preserveScroll: true,
                     });
                 },
@@ -73,9 +74,9 @@ export default function CourseManagement() {
 
     const handleDelete = (id: string) => {
         if (window.confirm('Are you sure you want to delete this course?')) {
-            router.delete(route('superadmin.courses.destroy', id), {
+            router.delete(`/superadmin/courses/${id}`, {
                 onSuccess: () => {
-                    router.visit(route('superadmin.courses.index'), {
+                    router.visit('/superadmin/courses', {
                         preserveScroll: true,
                     });
                 },
@@ -194,7 +195,7 @@ export default function CourseManagement() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                     <div className="w-full max-w-md rounded-xl bg-white p-6">
                         <div className="mb-4 flex items-start justify-between">
-                            <h2 className="text-xl font-semibold">
+                            <h2 className="text-xl font-semibold text-gray-900">
                                 {modal === 'create'
                                     ? 'Tambah Mata Kuliah Baru'
                                     : 'Edit Mata Kuliah'}
@@ -215,7 +216,7 @@ export default function CourseManagement() {
                             className="space-y-4"
                         >
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     Kode Matkul
                                 </label>
                                 <input
@@ -224,7 +225,7 @@ export default function CourseManagement() {
                                     onChange={(e) =>
                                         setData('code', e.target.value)
                                     }
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                     required
                                 />
                                 {errors.code && (
@@ -235,7 +236,7 @@ export default function CourseManagement() {
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     Nama Mata Kuliah
                                 </label>
                                 <input
@@ -244,7 +245,7 @@ export default function CourseManagement() {
                                     onChange={(e) =>
                                         setData('name', e.target.value)
                                     }
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                     required
                                 />
                                 {errors.name && (
@@ -255,7 +256,7 @@ export default function CourseManagement() {
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     Deskripsi
                                 </label>
                                 <textarea
@@ -263,7 +264,7 @@ export default function CourseManagement() {
                                     onChange={(e) =>
                                         setData('description', e.target.value)
                                     }
-                                    className="h-20 w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="h-20 w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                 />
                                 {errors.description && (
                                     <p className="mt-1 text-sm text-red-600">
@@ -273,7 +274,7 @@ export default function CourseManagement() {
                             </div>
 
                             <div>
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     Kapasitas Maksimal
                                 </label>
                                 <input
@@ -285,7 +286,7 @@ export default function CourseManagement() {
                                             parseInt(e.target.value) || 0,
                                         )
                                     }
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                     min="1"
                                     required
                                 />
@@ -297,7 +298,7 @@ export default function CourseManagement() {
                             </div>
 
                             <div className="flex items-center">
-                                <label className="mb-0 flex items-center gap-2 text-sm font-medium">
+                                <label className="mb-0 flex items-center gap-2 text-sm font-medium text-gray-900">
                                     <input
                                         type="checkbox"
                                         checked={data.isActive}
@@ -314,7 +315,7 @@ export default function CourseManagement() {
                             </div>
 
                             <div className="mt-4">
-                                <label className="mb-1 block text-sm font-medium">
+                                <label className="mb-1 block text-sm font-medium text-gray-900">
                                     Admin Tim
                                 </label>
                                 <div className="space-y-2">
@@ -350,7 +351,7 @@ export default function CourseManagement() {
                                 <button
                                     type="button"
                                     onClick={() => setModal(null)}
-                                    className="rounded-md border border-gray-300 px-4 py-2 hover:bg-gray-50"
+                                    className="rounded-md border border-gray-300 px-4 py-2 text-gray-900 hover:bg-gray-50"
                                 >
                                     Batal
                                 </button>
