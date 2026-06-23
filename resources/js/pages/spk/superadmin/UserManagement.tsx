@@ -1,6 +1,7 @@
-import { usePage, useForm } from '@inertiajs/react';
+import { usePage, useForm, router } from '@inertiajs/react';
 import { Plus, Pencil, Trash2, X } from 'lucide-react';
 import React, { useState } from 'react';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 
 interface FormData {
     name: string;
@@ -73,16 +74,23 @@ export default function UserManagement() {
         }
     };
 
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+
     const handleDelete = (id: string) => {
-        if (window.confirm('Apakah Anda yakin ingin menghapus pengguna ini?')) {
-            router.delete(`/superadmin/users/${id}`, {
-                onSuccess: () => {
-                    router.visit('/superadmin/users', {
-                        preserveScroll: true,
-                    });
-                },
-            });
-        }
+        setDeleteId(id);
+    };
+
+    const handleConfirmDelete = () => {
+        if (!deleteId) return;
+        const id = deleteId;
+        setDeleteId(null);
+        router.delete(`/superadmin/users/${id}`, {
+            onSuccess: () => {
+                router.visit('/superadmin/users', {
+                    preserveScroll: true,
+                });
+            },
+        });
     };
 
     const toggleCourse = (courseId: string) => {
@@ -424,6 +432,16 @@ export default function UserManagement() {
                     </div>
                 </div>
             )}
+
+            <ConfirmDialog
+                open={!!deleteId}
+                onOpenChange={() => setDeleteId(null)}
+                onConfirm={handleConfirmDelete}
+                title="Hapus Pengguna"
+                description="Apakah Anda yakin ingin menghapus pengguna ini?"
+                confirmText="Ya, Hapus"
+                destructive
+            />
         </div>
     );
 }

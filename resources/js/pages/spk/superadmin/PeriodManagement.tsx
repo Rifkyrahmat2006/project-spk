@@ -13,6 +13,7 @@ import {
     EyeOff,
 } from 'lucide-react';
 import React, { useState } from 'react';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 
 interface FormData {
     name: string;
@@ -134,16 +135,23 @@ export default function PeriodManagement() {
         }
     };
 
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+
     const handleDelete = (id: string) => {
-        if (window.confirm('Apakah Anda yakin ingin menghapus periode ini?')) {
-            router.delete(`/superadmin/periods/${id}`, {
-                onSuccess: () => {
-                    router.visit('/superadmin/periods', {
-                        preserveScroll: true,
-                    });
-                },
-            });
-        }
+        setDeleteId(id);
+    };
+
+    const handleConfirmDelete = () => {
+        if (!deleteId) return;
+        const id = deleteId;
+        setDeleteId(null);
+        router.delete(`/superadmin/periods/${id}`, {
+            onSuccess: () => {
+                router.visit('/superadmin/periods', {
+                    preserveScroll: true,
+                });
+            },
+        });
     };
 
     return (
@@ -509,6 +517,16 @@ export default function PeriodManagement() {
                     </div>
                 </div>
             )}
+
+            <ConfirmDialog
+                open={!!deleteId}
+                onOpenChange={() => setDeleteId(null)}
+                onConfirm={handleConfirmDelete}
+                title="Hapus Periode"
+                description="Apakah Anda yakin ingin menghapus periode ini?"
+                confirmText="Ya, Hapus"
+                destructive
+            />
         </div>
     );
 }

@@ -7,6 +7,9 @@ import {
     Calculator,
     RefreshCw,
 } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 
 export default function AdminDashboard() {
     const { props } = usePage();
@@ -18,33 +21,45 @@ export default function AdminDashboard() {
         0,
     );
 
-    const handleCalculateTopsis = (courseId: number, courseName: string) => {
-        if (confirm(`Hitung TOPSIS untuk ${courseName}?`)) {
-            fetch(`/admin/courses/${courseId}/topsis/calculate`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document
+    const [showTopsisConfirm, setShowTopsisConfirm] = useState(false);
+    const [topsisTarget, setTopsisTarget] = useState<{
+        id: number;
+        name: string;
+    } | null>(null);
+
+    const executeCalculateTopsis = () => {
+        if (!topsisTarget) return;
+        const { id, name } = topsisTarget;
+        setShowTopsisConfirm(false);
+        fetch(`/admin/courses/${id}/topsis/calculate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN':
+                    document
                         .querySelector('meta[name="csrf-token"]')
-                        ?.getAttribute('content'),
-                },
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    alert(
-                        data.success
-                            ? `${data.message}: ${data.result_count} kandidat`
-                            : `Error: ${data.error}`,
+                        ?.getAttribute('content') ?? '',
+            },
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.success) {
+                    toast.success(
+                        `${data.message}: ${data.result_count} kandidat`,
                     );
-                    if (data.success) {
-                        // Refresh page to show updated results
-                        window.location.reload();
-                    }
-                })
-                .catch((err) =>
-                    alert('Error calculating TOPSIS: ' + err.message),
-                );
-        }
+                    window.location.reload();
+                } else {
+                    toast.error(`Error: ${data.error}`);
+                }
+            })
+            .catch((err) =>
+                toast.error('Error calculating TOPSIS: ' + err.message),
+            );
+    };
+
+    const handleCalculateTopsis = (courseId: number, courseName: string) => {
+        setTopsisTarget({ id: courseId, name: courseName });
+        setShowTopsisConfirm(true);
     };
 
     return (
@@ -170,6 +185,20 @@ export default function AdminDashboard() {
                     ))}
                 </div>
             </div>
+
+            <ConfirmDialog
+                open={showTopsisConfirm}
+                onOpenChange={setShowTopsisConfirm}
+                onConfirm={executeCalculateTopsis}
+                title="Hitung TOPSIS"
+                description={
+                    topsisTarget
+                        ? `Hitung TOPSIS untuk ${topsisTarget.name}?`
+                        : ''
+                }
+                confirmText="Ya, Hitung"
+                loading={false}
+            />
         </div>
     );
 }

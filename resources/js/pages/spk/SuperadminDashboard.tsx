@@ -21,6 +21,9 @@ import {
     Pie,
     Legend,
 } from 'recharts';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
 
@@ -31,64 +34,76 @@ export default function SuperadminDashboard() {
     const activePeriod = props.activePeriod || null;
     const stats = props.stats || {};
 
-    const handleRecalculateAll = () => {
-        if (
-            confirm(
-                'Recalculate TOPSIS untuk semua mata kuliah? Ini akan menghapus hasil sebelumnya.',
-            )
-        ) {
-            fetch('/admin/topsis/calculate-all', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document
+    const [showRecalculateConfirm, setShowRecalculateConfirm] = useState(false);
+    const [showLockConfirm, setShowLockConfirm] = useState(false);
+    const [isRecalculating, setIsRecalculating] = useState(false);
+    const [isLocking, setIsLocking] = useState(false);
+
+    const executeRecalculate = () => {
+        setIsRecalculating(true);
+        setShowRecalculateConfirm(false);
+        fetch('/admin/topsis/calculate-all', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN':
+                    document
                         .querySelector('meta[name="csrf-token"]')
-                        ?.getAttribute('content'),
-                },
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    alert(
-                        data.success
-                            ? `Berhasil: ${data.successful_courses} mata kuliah`
-                            : `Error: ${data.error}`,
+                        ?.getAttribute('content') ?? '',
+            },
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.success) {
+                    toast.success(
+                        `Berhasil: ${data.successful_courses} mata kuliah`,
                     );
-                    if (data.success) {
-                        window.location.reload();
-                    }
-                })
-                .catch((err) => alert('Error: ' + err.message));
-        }
+                    window.location.reload();
+                } else {
+                    toast.error(`Error: ${data.error}`);
+                }
+            })
+            .catch((err) => toast.error('Error: ' + err.message))
+            .finally(() => setIsRecalculating(false));
+    };
+
+    const handleRecalculateAll = () => {
+        setShowRecalculateConfirm(true);
+    };
+
+    const executeLockPeriod = () => {
+        if (!activePeriod) return;
+        setIsLocking(true);
+        setShowLockConfirm(false);
+        fetch(`/admin/topsis/periods/${activePeriod.id}/lock`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN':
+                    document
+                        .querySelector('meta[name="csrf-token"]')
+                        ?.getAttribute('content') ?? '',
+            },
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.success) {
+                    toast.success(data.message);
+                    window.location.reload();
+                } else {
+                    toast.error(`Error: ${data.error}`);
+                }
+            })
+            .catch((err) => toast.error('Error: ' + err.message))
+            .finally(() => setIsLocking(false));
     };
 
     const handleLockPeriod = () => {
         if (!activePeriod) {
-            alert('Tidak ada periode aktif');
+            toast.error('Tidak ada periode aktif');
             return;
         }
-        if (
-            confirm(
-                `Lock periode "${activePeriod.name}" dan buat snapshot? Ini tidak bisa dibatalkan.`,
-            )
-        ) {
-            fetch(`/admin/topsis/periods/${activePeriod.id}/lock`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document
-                        .querySelector('meta[name="csrf-token"]')
-                        ?.getAttribute('content'),
-                },
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    alert(data.success ? data.message : `Error: ${data.error}`);
-                    if (data.success) {
-                        window.location.reload();
-                    }
-                })
-                .catch((err) => alert('Error: ' + err.message));
-        }
+        setShowLockConfirm(true);
     };
 
     const chartData = courses.map((course: any) => ({
@@ -377,6 +392,32 @@ export default function SuperadminDashboard() {
                     ))}
                 </div>
             </div>
+
+            <ConfirmDialog
+                open={showRecalculateConfirm}
+                onOpenChange={setShowRecalculateConfirm}
+                onConfirm={executeRecalculate}
+                title="Hitung Ulang TOPSIS"
+                description="Recalculate TOPSIS untuk semua mata kuliah? Ini akan menghapus hasil sebelumnya."
+                confirmText="Ya, Hitung Ulang"
+                destructive
+                loading={isRecalculating}
+            />
+
+            <ConfirmDialog
+                open={showLockConfirm}
+                onOpenChange={setShowLockConfirm}
+                onConfirm={executeLockPeriod}
+                title="Lock Periode"
+                description={
+                    activePeriod
+                        ? `Lock periode "${activePeriod.name}" dan buat snapshot? Ini tidak bisa dibatalkan.`
+                        : ''
+                }
+                confirmText="Ya, Lock"
+                destructive
+                loading={isLocking}
+            />
         </div>
     );
 }

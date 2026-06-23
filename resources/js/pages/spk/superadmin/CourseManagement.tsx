@@ -2,6 +2,7 @@ import React from 'react';
 import { usePage, router } from '@inertiajs/react';
 import { Plus, Pencil, Trash2, X, BookOpen, Users } from 'lucide-react';
 import { useForm } from '@inertiajs/react';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 
 interface FormData {
     code: string;
@@ -72,16 +73,23 @@ export default function CourseManagement() {
         }
     };
 
+    const [deleteId, setDeleteId] = React.useState<string | null>(null);
+
     const handleDelete = (id: string) => {
-        if (window.confirm('Are you sure you want to delete this course?')) {
-            router.delete(`/superadmin/courses/${id}`, {
-                onSuccess: () => {
-                    router.visit('/superadmin/courses', {
-                        preserveScroll: true,
-                    });
-                },
-            });
-        }
+        setDeleteId(id);
+    };
+
+    const handleConfirmDelete = () => {
+        if (!deleteId) return;
+        const id = deleteId;
+        setDeleteId(null);
+        router.delete(`/superadmin/courses/${id}`, {
+            onSuccess: () => {
+                router.visit('/superadmin/courses', {
+                    preserveScroll: true,
+                });
+            },
+        });
     };
 
     const toggleAdmin = (id: string) => {
@@ -367,6 +375,16 @@ export default function CourseManagement() {
                     </div>
                 </div>
             )}
+
+            <ConfirmDialog
+                open={!!deleteId}
+                onOpenChange={() => setDeleteId(null)}
+                onConfirm={handleConfirmDelete}
+                title="Hapus Mata Kuliah"
+                description="Apakah Anda yakin ingin menghapus mata kuliah ini?"
+                confirmText="Ya, Hapus"
+                destructive
+            />
         </div>
     );
 }

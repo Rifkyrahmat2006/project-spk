@@ -97,7 +97,7 @@ export default function Login({
                     {
                         theme: 'outline',
                         size: 'large',
-                        width: '100%',
+                        width: 400, // Google minta angka (pixel)
                         text: 'continue_with',
                     },
                 );
@@ -161,7 +161,7 @@ export default function Login({
                                     placeholder="email@unsoed.ac.id"
                                     required
                                     autoFocus
-                                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none autofill:shadow-[0_0_0_30px_white_inset] autofill:text-black"
+                                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none autofill:shadow-[0_0_0_30px_white_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]"
                                 />
                             </div>
                             <div>
@@ -179,7 +179,7 @@ export default function Login({
                                         }
                                         placeholder="Masukkan password"
                                         required
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 pr-10 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none autofill:shadow-[0_0_0_30px_white_inset] autofill:text-black"
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 pr-10 text-sm text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none autofill:shadow-[0_0_0_30px_white_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:black]"
                                     />
                                     <button
                                         type="button"
@@ -223,7 +223,7 @@ export default function Login({
                                         window.google.accounts.id.prompt();
                                     }
                                 }}
-                                className="relative flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                className="relative flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
                             >
                                 <img
                                     src="/images/unsoed.png"
@@ -232,9 +232,12 @@ export default function Login({
                                 />
                                 Masuk Dengan Akun UNSOED
                             </button>
-                            
+
                             {/* Hidden Google Sign-In Div - we need this for GIS to work */}
-                            <div id="googleSignInDiv" className="hidden w-full"></div>
+                            <div
+                                id="googleSignInDiv"
+                                className="hidden w-full"
+                            ></div>
                         </form>
 
                         <div className="mt-4 text-center">

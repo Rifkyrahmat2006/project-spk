@@ -36,6 +36,7 @@ const superadminNavItems = [
         href: '/superadmin/consolidated-results',
         icon: BarChart3,
     },
+    { title: 'Notifikasi', href: '/notifications', icon: Bell },
 ];
 
 const adminNavItems = [
@@ -43,11 +44,13 @@ const adminNavItems = [
     { title: 'Manajemen Kandidat', href: '/admin/candidates', icon: UserCheck },
     { title: 'Input Nilai', href: '/admin/scores', icon: ClipboardList },
     { title: 'Hasil TOPSIS', href: '/admin/topsis-results', icon: Trophy },
+    { title: 'Notifikasi', href: '/notifications', icon: Bell },
 ];
 
 const candidateNavItems = [
     { title: 'Dashboard', href: '/dashboard', icon: LayoutGrid },
     { title: 'Portal Seleksi', href: '/portal', icon: FileText },
+    { title: 'Notifikasi', href: '/notifications', icon: Bell },
 ];
 
 const roleLabel: Record<string, string> = {

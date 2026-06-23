@@ -1,10 +1,11 @@
-import { usePage, router } from '@inertiajs/react';
+import { usePage, router, Link } from '@inertiajs/react';
 import { useState } from 'react';
 import { Bell, ChevronDown, LogOut } from 'lucide-react';
 
 export function AppHeader() {
     const { props } = usePage();
     const user = props.auth?.user;
+    const unreadCount = (props as any).unreadCount ?? 0;
     const [profileOpen, setProfileOpen] = useState(false);
 
     const handleLogout = () => {
@@ -16,10 +17,17 @@ export function AppHeader() {
             <div className="flex-1" />
 
             {/* Notification Bell */}
-            <button className="relative rounded-lg p-2 text-gray-500 transition-all hover:bg-gray-100 hover:text-gray-800">
+            <Link
+                href="/notifications"
+                className="relative rounded-lg p-2 text-gray-500 transition-all hover:bg-gray-100 hover:text-gray-800"
+            >
                 <Bell size={20} />
-                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500" />
-            </button>
+                {unreadCount > 0 && (
+                    <span className="absolute top-1.5 right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                )}
+            </Link>
 
             {/* Profile Dropdown */}
             <div className="relative">

@@ -1,6 +1,7 @@
 import { usePage, useForm } from '@inertiajs/react';
 import { Plus, Pencil, Trash2, X } from 'lucide-react';
 import React, { useState } from 'react';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 
 interface FormData {
     user_id: string;
@@ -55,10 +56,17 @@ export default function CandidateManagement() {
         }
     };
 
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+
     const handleDelete = (id: string) => {
-        if (window.confirm('Apakah Anda yakin ingin menghapus kandidat ini?')) {
-            window.location.href = route('admin.candidates.destroy', id);
-        }
+        setDeleteId(id);
+    };
+
+    const handleConfirmDelete = () => {
+        if (!deleteId) return;
+        const id = deleteId;
+        setDeleteId(null);
+        window.location.href = route('admin.candidates.destroy', id);
     };
 
     const toggleCourse = (courseId: string) => {
@@ -255,7 +263,7 @@ export default function CandidateManagement() {
                                 <button
                                     type="button"
                                     onClick={() => setModal(null)}
-                                    className="rounded-md border border-gray-300 px-4 py-2  text-gray-900 hover:bg-gray-50"
+                                    className="rounded-md border border-gray-300 px-4 py-2 text-gray-900 hover:bg-gray-50"
                                 >
                                     Batal
                                 </button>
@@ -271,6 +279,16 @@ export default function CandidateManagement() {
                     </div>
                 </div>
             )}
+
+            <ConfirmDialog
+                open={!!deleteId}
+                onOpenChange={() => setDeleteId(null)}
+                onConfirm={handleConfirmDelete}
+                title="Hapus Kandidat"
+                description="Apakah Anda yakin ingin menghapus kandidat ini?"
+                confirmText="Ya, Hapus"
+                destructive
+            />
         </div>
     );
 }

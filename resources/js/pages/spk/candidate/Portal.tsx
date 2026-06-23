@@ -1,5 +1,7 @@
 import { usePage, Link, useForm } from '@inertiajs/react';
 import { BookOpen, FileText, CheckCircle, XCircle } from 'lucide-react';
+import { useState } from 'react';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 
 export default function CandidatePortal() {
     const { props } = usePage();
@@ -10,17 +12,20 @@ export default function CandidatePortal() {
 
     const { post, processing } = useForm({});
 
+    const [applyConfirmId, setApplyConfirmId] = useState<string | null>(null);
+
     const handleApply = (courseId: string) => {
-        if (
-            window.confirm(
-                'Apakah Anda yakin ingin mendaftar seleksi mata kuliah ini?',
-            )
-        ) {
-            post('/portal/apply', {
-                data: { course_id: courseId },
-                preserveScroll: true,
-            });
-        }
+        setApplyConfirmId(courseId);
+    };
+
+    const handleConfirmApply = () => {
+        if (!applyConfirmId) return;
+        const id = applyConfirmId;
+        setApplyConfirmId(null);
+        post('/portal/apply', {
+            data: { course_id: id },
+            preserveScroll: true,
+        });
     };
 
     const alreadyApplied = (courseId: string) =>
@@ -197,6 +202,15 @@ export default function CandidatePortal() {
                     </p>
                 </div>
             )}
+
+            <ConfirmDialog
+                open={!!applyConfirmId}
+                onOpenChange={() => setApplyConfirmId(null)}
+                onConfirm={handleConfirmApply}
+                title="Daftar Seleksi"
+                description="Apakah Anda yakin ingin mendaftar seleksi mata kuliah ini?"
+                confirmText="Ya, Daftar"
+            />
         </div>
     );
 }

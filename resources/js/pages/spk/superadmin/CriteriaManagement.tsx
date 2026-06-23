@@ -1,6 +1,7 @@
-import { usePage, useForm } from '@inertiajs/react';
+import { usePage, useForm, router } from '@inertiajs/react';
 import { Plus, Pencil, Trash2, X } from 'lucide-react';
 import React, { useState } from 'react';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 
 interface FormData {
     code: string;
@@ -66,16 +67,23 @@ export default function CriteriaManagement() {
         }
     };
 
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+
     const handleDelete = (id: string) => {
-        if (window.confirm('Apakah Anda yakin ingin menghapus kriteria ini?')) {
-            router.delete(`/superadmin/criteria/${id}`, {
-                onSuccess: () => {
-                    router.visit('/superadmin/criteria', {
-                        preserveScroll: true,
-                    });
-                },
-            });
-        }
+        setDeleteId(id);
+    };
+
+    const handleConfirmDelete = () => {
+        if (!deleteId) return;
+        const id = deleteId;
+        setDeleteId(null);
+        router.delete(`/superadmin/criteria/${id}`, {
+            onSuccess: () => {
+                router.visit('/superadmin/criteria', {
+                    preserveScroll: true,
+                });
+            },
+        });
     };
 
     return (
@@ -356,6 +364,16 @@ export default function CriteriaManagement() {
                     </div>
                 </div>
             )}
+
+            <ConfirmDialog
+                open={!!deleteId}
+                onOpenChange={() => setDeleteId(null)}
+                onConfirm={handleConfirmDelete}
+                title="Hapus Kriteria"
+                description="Apakah Anda yakin ingin menghapus kriteria ini?"
+                confirmText="Ya, Hapus"
+                destructive
+            />
         </div>
     );
 }

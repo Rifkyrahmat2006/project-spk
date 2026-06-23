@@ -1,6 +1,7 @@
 import { usePage, useForm, router } from '@inertiajs/react';
 import { Save, Search } from 'lucide-react';
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 interface PageProps {
     [key: string]: any;
@@ -58,7 +59,7 @@ export default function ScoreInput() {
         // Use router.post or fixed route helper if available. Assuming router.post for Inertia.
         router.post('/admin/scores', data, {
             onSuccess: () => {
-                alert('Nilai berhasil disimpan!');
+                toast.success('Nilai berhasil disimpan!');
             },
         });
     };

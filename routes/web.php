@@ -60,6 +60,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['role.candidate'])->prefix('portal')->name('portal.')->group(function () {
         Route::get('/', [PortalController::class, 'index'])->name('index');
     });
+
+    // Notification Routes (all authenticated users)
+    Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
 });
 
 require __DIR__.'/settings.php';
