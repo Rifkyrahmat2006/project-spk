@@ -149,8 +149,8 @@ class TopsisController extends Controller
         }
 
         try {
-            // Verify period is closed
-            if (!$period->is_closed && now()->isBefore($period->ends_at)) {
+            // Verify period has ended
+            if (!$period->end_date || now()->isBefore($period->end_date)) {
                 return response()->json([
                     'success' => false,
                     'error' => 'Period must be closed before locking results',
@@ -160,32 +160,12 @@ class TopsisController extends Controller
             $courses = Course::where('is_active', true)->get();
 
             foreach ($courses as $course) {
-                // Create snapshot if results exist
-                $latestResult = TopsisResult::where('course_id', $course->id)
-                    ->orderBy('period_id', 'desc')
-                    ->first();
-
-                if ($latestResult) {
-                    $courseResults = TopsisResult::where('course_id', $course->id)
-                        ->where('period_id', $period->id)
-                        ->with('candidate.user')
-                        ->orderBy('ranking')
-                        ->get();
-
-                    if ($courseResults->isNotEmpty()) {
-                        $calculationResult = [
-                            'candidate_count' => $courseResults->count(),
-                            'rankings' => $courseResults->map(fn($r) => [
-                                'candidate_id' => $r->candidate_id,
-                                'ranking' => $r->ranking,
-                                'preference_score' => (float) $r->preference_score,
-                                'd_plus' => (float) $r->d_plus,
-                                'd_minus' => (float) $r->d_minus,
-                            ])->toArray(),
-                        ];
-
-                        $this->topsisService->createSnapshot($period->id, $course, $calculationResult);
-                    }
+                try {
+                    $calculationResult = $this->topsisService->calculateForCourse($course);
+                    $this->topsisService->createSnapshot($period->id, $course, $calculationResult);
+                } catch (\Exception $e) {
+                    // Skip course if no candidates or other error
+                    continue;
                 }
             }
 
