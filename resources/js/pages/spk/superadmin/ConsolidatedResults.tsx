@@ -6,10 +6,9 @@ import {
     XAxis,
     YAxis,
     Tooltip,
-    Cell,
     ResponsiveContainer,
 } from 'recharts';
-import { usePage } from '@inertiajs/react';
+import { usePage, router } from '@inertiajs/react';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
 
@@ -27,18 +26,22 @@ export default function ConsolidatedResults() {
     const courses = props.courses || [];
 
     const handleFilter = () => {
-        const params = new URLSearchParams();
-        if (selectedPeriodId) params.append('period_id', selectedPeriodId);
-        if (selectedCourseId) params.append('course_id', selectedCourseId);
-        window.location.href = `/superadmin/consolidated-results?${params.toString()}`;
+        const params: Record<string, string> = {};
+        if (selectedPeriodId) params.period_id = selectedPeriodId;
+        if (selectedCourseId) params.course_id = selectedCourseId;
+        router.get('/superadmin/consolidated-results', params, {
+            preserveState: true,
+            only: ['results', 'selectedPeriodId', 'selectedCourseId'],
+        });
     };
 
-    const handleExport = () => {
+    const exportUrl = useMemo(() => {
         const params = new URLSearchParams();
         if (selectedPeriodId) params.append('period_id', selectedPeriodId);
         if (selectedCourseId) params.append('course_id', selectedCourseId);
-        window.location.href = `/superadmin/consolidated-results/export?${params.toString()}`;
-    };
+        const qs = params.toString();
+        return `/superadmin/consolidated-results/export${qs ? `?${qs}` : ''}`;
+    }, [selectedPeriodId, selectedCourseId]);
 
     const accepted = results.filter((r: any) => r.is_accepted);
     const rejected = results.filter((r: any) => !r.is_accepted);
@@ -74,20 +77,20 @@ export default function ConsolidatedResults() {
     }, [results]);
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
             <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
                     Rekap Hasil Seleksi
                 </h1>
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-xs text-gray-500 sm:text-sm">
                     Konsolidasi hasil TOPSIS dari seluruh mata kuliah.
                 </p>
             </div>
 
             {/* Filter Section */}
-            <div className="rounded-xl border border-gray-200 bg-white p-6">
-                <div className="flex items-end gap-4">
-                    <div className="flex-1">
+            <div className="rounded-xl border border-gray-200 bg-white p-4 sm:p-6">
+                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+                    <div className="w-full sm:min-w-[200px] sm:flex-1">
                         <label className="mb-2 block text-sm font-medium text-gray-900">
                             Periode
                         </label>
@@ -106,7 +109,7 @@ export default function ConsolidatedResults() {
                             ))}
                         </select>
                     </div>
-                    <div className="flex-1">
+                    <div className="w-full sm:min-w-[200px] sm:flex-1">
                         <label className="mb-2 block text-sm font-medium text-gray-900">
                             Mata Kuliah
                         </label>
@@ -125,91 +128,105 @@ export default function ConsolidatedResults() {
                             ))}
                         </select>
                     </div>
-                    <button
-                        onClick={handleFilter}
-                        className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
-                    >
-                        <Filter size={18} /> Filter
-                    </button>
-                    <button
-                        onClick={handleExport}
-                        className="flex items-center gap-2 rounded-md bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700"
-                    >
-                        <Download size={18} /> Export CSV
-                    </button>
+                    <div className="flex gap-2 sm:gap-3">
+                        <button
+                            onClick={handleFilter}
+                            className="flex w-full items-center justify-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700 sm:w-auto"
+                        >
+                            <Filter size={16} /> Filter
+                        </button>
+                        <a
+                            href={exportUrl}
+                            className="flex w-full items-center justify-center gap-2 rounded-md bg-green-600 px-4 py-2 text-sm text-white transition-colors hover:bg-green-700 sm:w-auto"
+                        >
+                            <Download size={16} /> Export CSV
+                        </a>
+                    </div>
                 </div>
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                    <p className="text-2xl font-bold text-gray-900">
+            <div className="grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-4">
+                <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-5">
+                    <p className="text-xl font-bold text-gray-900 sm:text-2xl">
                         {results.length}
                     </p>
-                    <p className="mt-1 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                    <p className="mt-1 text-[10px] font-semibold tracking-wider text-gray-500 uppercase sm:text-xs">
                         Total Kandidat
                     </p>
                 </div>
-                <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                    <p className="text-2xl font-bold text-green-600">
+                <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-5">
+                    <p className="text-xl font-bold text-green-600 sm:text-2xl">
                         {accepted.length}
                     </p>
-                    <p className="mt-1 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                    <p className="mt-1 text-[10px] font-semibold tracking-wider text-gray-500 uppercase sm:text-xs">
                         Diterima
                     </p>
                 </div>
-                <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                    <p className="text-2xl font-bold text-red-500">
+                <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-5">
+                    <p className="text-xl font-bold text-red-500 sm:text-2xl">
                         {rejected.length}
                     </p>
-                    <p className="mt-1 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                    <p className="mt-1 text-[10px] font-semibold tracking-wider text-gray-500 uppercase sm:text-xs">
                         Tidak Diterima
                     </p>
                 </div>
-                <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                    <p className="text-2xl font-bold text-blue-600">
+                <div className="rounded-xl border border-gray-200 bg-white p-3 shadow-sm sm:p-5">
+                    <p className="text-xl font-bold text-blue-600 sm:text-2xl">
                         {courses.length}
                     </p>
-                    <p className="mt-1 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                    <p className="mt-1 text-[10px] font-semibold tracking-wider text-gray-500 uppercase sm:text-xs">
                         Mata Kuliah
                     </p>
                 </div>
             </div>
 
             {/* Score Chart */}
-            <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h3 className="mb-6 font-semibold text-gray-800">
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+                <h3 className="mb-4 font-semibold text-gray-800 sm:mb-6">
                     Perbandingan Skor per Mata Kuliah
                 </h3>
-                <div className="h-60 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                            data={chartData}
-                            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                            barGap={4}
-                            barCategoryGap="50%"
-                        >
-                            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                            <YAxis tick={{ fontSize: 11 }} domain={[0, 100]} />
-                            <Tooltip
-                                formatter={(v: number) => `${v}%`}
-                                cursor={{ fill: '#f3f4f6' }}
-                            />
-                            <Bar
-                                dataKey="Top Skor"
-                                fill="#3b82f6"
-                                radius={[4, 4, 0, 0]}
-                                barSize={60}
-                            />
-                            <Bar
-                                dataKey="Rata-rata"
-                                fill="#9ca3af"
-                                radius={[4, 4, 0, 0]}
-                                barSize={60}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
+                {chartData.length > 0 ? (
+                    <div className="h-48 sm:h-60">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart
+                                data={chartData}
+                                margin={{
+                                    top: 10,
+                                    right: 10,
+                                    left: -10,
+                                    bottom: 0,
+                                }}
+                                barGap={2}
+                                barCategoryGap="30%"
+                            >
+                                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                                <YAxis
+                                    tick={{ fontSize: 10 }}
+                                    domain={[0, 100]}
+                                />
+                                <Tooltip
+                                    formatter={(v: number) => `${v}%`}
+                                    cursor={{ fill: '#f3f4f6' }}
+                                />
+                                <Bar
+                                    dataKey="Top Skor"
+                                    fill="#3b82f6"
+                                    radius={[4, 4, 0, 0]}
+                                />
+                                <Bar
+                                    dataKey="Rata-rata"
+                                    fill="#9ca3af"
+                                    radius={[4, 4, 0, 0]}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                ) : (
+                    <p className="py-8 text-center text-sm text-gray-400">
+                        Tidak ada data untuk ditampilkan.
+                    </p>
+                )}
             </div>
 
             {/* Per-course results */}
@@ -225,7 +242,7 @@ export default function ConsolidatedResults() {
                         className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md"
                     >
                         <div
-                            className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-5 py-4"
+                            className="flex flex-col gap-2 border-b border-gray-100 bg-gray-50/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4"
                             style={{
                                 borderLeftWidth: 4,
                                 borderLeftColor: COLORS[ci % COLORS.length],
@@ -255,25 +272,25 @@ export default function ConsolidatedResults() {
                             <table className="w-full text-sm">
                                 <thead className="border-b border-gray-100 bg-gray-50/80">
                                     <tr>
-                                        <th className="px-4 py-3 text-left text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                                        <th className="px-3 py-3 text-left text-[10px] font-bold tracking-widest text-gray-400 uppercase sm:px-4">
                                             #
                                         </th>
-                                        <th className="px-4 py-3 text-left text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                                        <th className="px-3 py-3 text-left text-[10px] font-bold tracking-widest text-gray-400 uppercase sm:px-4">
                                             Nama
                                         </th>
-                                        <th className="px-4 py-3 text-left text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                                        <th className="hidden px-3 py-3 text-left text-[10px] font-bold tracking-widest text-gray-400 uppercase sm:table-cell sm:px-4">
                                             NIM
                                         </th>
-                                        <th className="px-4 py-3 text-right text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                                        <th className="hidden px-3 py-3 text-right text-[10px] font-bold tracking-widest text-gray-400 uppercase sm:table-cell sm:px-4">
                                             D+
                                         </th>
-                                        <th className="px-4 py-3 text-right text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                                        <th className="hidden px-3 py-3 text-right text-[10px] font-bold tracking-widest text-gray-400 uppercase sm:table-cell sm:px-4">
                                             D−
                                         </th>
-                                        <th className="px-4 py-3 text-right text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                                        <th className="px-3 py-3 text-right text-[10px] font-bold tracking-widest text-gray-400 uppercase sm:px-4">
                                             Skor (Vi)
                                         </th>
-                                        <th className="px-4 py-3 text-center text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                                        <th className="px-3 py-3 text-center text-[10px] font-bold tracking-widest text-gray-400 uppercase sm:px-4">
                                             Status
                                         </th>
                                     </tr>
@@ -286,34 +303,43 @@ export default function ConsolidatedResults() {
                                                 key={r.id}
                                                 className={`border-b border-gray-50 transition-colors last:border-0 hover:bg-gray-50/50 ${isAccepted ? 'bg-green-50/30' : ''}`}
                                             >
-                                                <td className="px-4 py-3">
+                                                <td className="px-3 py-3 sm:px-4">
                                                     <span
                                                         className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold shadow-sm ${i === 0 ? 'bg-yellow-100 text-yellow-700' : i === 1 ? 'bg-gray-100 text-gray-600' : i === 2 ? 'bg-orange-100 text-orange-700' : 'bg-gray-50 text-gray-500'}`}
                                                     >
                                                         {r.ranking || i + 1}
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-3 font-semibold text-gray-900">
-                                                    {r.candidate?.user?.name ||
-                                                        r.candidate?.name ||
-                                                        '—'}
+                                                <td className="px-3 py-3 sm:px-4">
+                                                    <div className="font-semibold text-gray-900">
+                                                        {r.candidate?.user
+                                                            ?.name ||
+                                                            r.candidate?.name ||
+                                                            '—'}
+                                                    </div>
+                                                    <div className="font-mono text-[11px] text-gray-400 sm:hidden">
+                                                        {r.candidate?.user
+                                                            ?.nim ||
+                                                            r.candidate?.nim ||
+                                                            '—'}
+                                                    </div>
                                                 </td>
-                                                <td className="px-4 py-3 font-mono text-[11px] text-gray-400">
+                                                <td className="hidden px-3 py-3 font-mono text-[11px] text-gray-400 sm:table-cell sm:px-4">
                                                     {r.candidate?.user?.nim ||
                                                         r.candidate?.nim ||
                                                         '—'}
                                                 </td>
-                                                <td className="px-4 py-3 text-right font-mono text-[11px] text-gray-500">
+                                                <td className="hidden px-3 py-3 text-right font-mono text-[11px] text-gray-500 sm:table-cell sm:px-4">
                                                     {Number(
                                                         r.d_plus || 0,
                                                     ).toFixed(4)}
                                                 </td>
-                                                <td className="px-4 py-3 text-right font-mono text-[11px] text-gray-500">
+                                                <td className="hidden px-3 py-3 text-right font-mono text-[11px] text-gray-500 sm:table-cell sm:px-4">
                                                     {Number(
                                                         r.d_minus || 0,
                                                     ).toFixed(4)}
                                                 </td>
-                                                <td className="px-4 py-3 text-right">
+                                                <td className="px-3 py-3 text-right sm:px-4">
                                                     <span
                                                         className={`font-mono font-bold ${isAccepted ? 'text-green-700' : 'text-gray-600'}`}
                                                     >
@@ -323,7 +349,7 @@ export default function ConsolidatedResults() {
                                                         ).toFixed(4)}
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-3 text-center">
+                                                <td className="px-3 py-3 text-center sm:px-4">
                                                     {isAccepted ? (
                                                         <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold tracking-wider text-green-700 uppercase">
                                                             <CheckCircle2

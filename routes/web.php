@@ -36,6 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('periods/{period}/unpublish', [PeriodController::class, 'unpublish'])->name('periods.unpublish');
         Route::post('periods/{period}/toggle-scores', [PeriodController::class, 'toggleScores'])->name('periods.toggleScores');
         Route::get('consolidated-results', [ConsolidatedResultController::class, 'index'])->name('consolidated.index');
+        Route::get('consolidated-results/export', [ConsolidatedResultController::class, 'export'])->name('consolidated.export');
     });
 
     // Admin / KoorAsPrak Routes (Superadmin can also access)

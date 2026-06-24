@@ -63,11 +63,11 @@ class ConsolidatedResultController extends Controller
             foreach ($results as $index => $result) {
                 fputcsv($file, [
                     $index + 1,
-                    $result->candidate->user->name,
-                    $result->candidate->user->nim,
-                    $result->course->name,
-                    round($result->score, 4),
-                    $result->is_qualified ? 'Qualified' : 'Not Qualified',
+                    $result->candidate?->user?->name ?? $result->candidate?->name ?? '—',
+                    $result->candidate?->user?->nim ?? $result->candidate?->nim ?? '—',
+                    $result->course?->name ?? '—',
+                    round($result->preference_score, 4),
+                    $result->is_accepted ? 'Diterima' : 'Tidak Diterima',
                 ]);
             }
             fclose($file);
