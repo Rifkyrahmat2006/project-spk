@@ -61,6 +61,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [PortalController::class, 'index'])->name('index');
     });
 
+    // Profile Routes (all authenticated users)
+    Route::prefix('profile')->name('my-profile.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\ProfileController::class, 'index'])->name('index');
+        Route::patch('/', [\App\Http\Controllers\ProfileController::class, 'update'])->name('update');
+        Route::post('/avatar', [\App\Http\Controllers\ProfileController::class, 'updateAvatar'])->name('avatar');
+        Route::put('/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('password');
+    });
+
     // Notification Routes (all authenticated users)
     Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');

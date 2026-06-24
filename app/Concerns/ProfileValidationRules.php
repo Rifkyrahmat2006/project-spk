@@ -18,6 +18,11 @@ trait ProfileValidationRules
         return [
             'name' => $this->nameRules(),
             'email' => $this->emailRules($userId),
+            'username' => ['nullable', 'string', 'max:50', 'alpha_dash:ascii',
+                $userId === null
+                    ? Rule::unique(User::class)
+                    : Rule::unique(User::class)->ignore($userId),
+            ],
         ];
     }
 

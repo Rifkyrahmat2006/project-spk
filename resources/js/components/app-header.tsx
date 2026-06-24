@@ -1,6 +1,7 @@
 import { usePage, router, Link } from '@inertiajs/react';
 import { useState } from 'react';
-import { Bell, ChevronDown, LogOut } from 'lucide-react';
+import { Bell, ChevronDown, LogOut, User } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export function AppHeader() {
     const { props } = usePage();
@@ -35,9 +36,15 @@ export function AppHeader() {
                     onClick={() => setProfileOpen(!profileOpen)}
                     className="flex items-center gap-2 rounded-lg px-3 py-1.5 transition-all hover:bg-gray-100"
                 >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
-                        {user?.name?.charAt(0) || 'U'}
-                    </div>
+                    <Avatar className="h-8 w-8">
+                        <AvatarImage
+                            src={user?.avatar || undefined}
+                            alt={user?.name}
+                        />
+                        <AvatarFallback className="bg-blue-600 text-sm font-semibold text-white">
+                            {user?.name?.charAt(0) || 'U'}
+                        </AvatarFallback>
+                    </Avatar>
                     <span className="hidden max-w-35 truncate text-sm font-medium text-gray-700 md:block">
                         {user?.name || 'User'}
                     </span>
@@ -54,6 +61,13 @@ export function AppHeader() {
                                 {user?.email || 'email@example.com'}
                             </p>
                         </div>
+                        <Link
+                            href="/profile"
+                            className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-gray-700 transition-all hover:bg-gray-50"
+                            onClick={() => setProfileOpen(false)}
+                        >
+                            <User size={16} /> Profile
+                        </Link>
                         <button
                             onClick={handleLogout}
                             className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-red-600 transition-all hover:bg-red-50"

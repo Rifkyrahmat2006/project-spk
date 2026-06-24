@@ -16,6 +16,7 @@ import {
     Bell,
     ChevronDown,
 } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const superadminNavItems = [
     { title: 'Dashboard', href: '/dashboard', icon: LayoutGrid },
@@ -125,10 +126,19 @@ export function AppSidebar() {
 
             {/* User Section */}
             <div className="border-t border-white/10 px-3 py-4">
-                <div className="mb-3 flex items-center gap-3 px-3 py-2">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20 text-sm font-semibold text-white">
-                        {user?.name?.charAt(0) || 'U'}
-                    </div>
+                <Link
+                    href="/profile"
+                    className="mb-3 flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:bg-white/10"
+                >
+                    <Avatar className="h-8 w-8">
+                        <AvatarImage
+                            src={user?.avatar || undefined}
+                            alt={user?.name}
+                        />
+                        <AvatarFallback className="bg-white/20 text-sm font-semibold text-white">
+                            {user?.name?.charAt(0) || 'U'}
+                        </AvatarFallback>
+                    </Avatar>
                     <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-white">
                             {user?.name || 'User'}
@@ -139,7 +149,7 @@ export function AppSidebar() {
                             {roleLabel[user?.role || 'user']}
                         </span>
                     </div>
-                </div>
+                </Link>
                 <button
                     onClick={handleLogout}
                     className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-blue-100 transition-all hover:bg-white/10 hover:text-white"
