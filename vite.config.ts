@@ -26,6 +26,7 @@ export default defineConfig({
         tailwindcss(),
         wayfinder({
             formVariants: true,
+            disabled: process.env.NODE_ENV === 'production',
         }),
     ],
 });
