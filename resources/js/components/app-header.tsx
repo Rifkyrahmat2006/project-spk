@@ -1,9 +1,13 @@
 import { usePage, router, Link } from '@inertiajs/react';
 import { useState } from 'react';
-import { Bell, ChevronDown, LogOut, User } from 'lucide-react';
+import { Bell, ChevronDown, LogOut, Menu, User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-export function AppHeader() {
+type Props = {
+    onToggleSidebar?: () => void;
+};
+
+export function AppHeader({ onToggleSidebar }: Props) {
     const { props } = usePage();
     const user = props.auth?.user;
     const unreadCount = (props as any).unreadCount ?? 0;
@@ -14,7 +18,16 @@ export function AppHeader() {
     };
 
     return (
-        <header className="flex h-14 shrink-0 items-center gap-4 border-b border-gray-200 bg-white px-6">
+        <header className="flex h-14 shrink-0 items-center gap-4 border-b border-gray-200 bg-white px-4 md:px-6">
+            {/* Hamburger — visible on mobile only */}
+            <button
+                onClick={onToggleSidebar}
+                className="rounded-lg p-2 text-gray-500 transition-all hover:bg-gray-100 hover:text-gray-800 md:hidden"
+                aria-label="Toggle sidebar"
+            >
+                <Menu size={20} />
+            </button>
+
             <div className="flex-1" />
 
             {/* Notification Bell */}
